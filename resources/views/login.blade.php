@@ -27,7 +27,6 @@
         }
     </script>
     <style>
-        /* Agar transisi height container terlihat smooth */
         [x-cloak] {
             display: none !important;
         }
@@ -55,13 +54,13 @@
 
             <button @click="isLogin = true"
                 class="w-1/2 relative z-10 font-medium py-2 rounded text-sm transition-colors duration-300"
-                :class="isLogin ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'">
+                :class="isLogin ? 'text-gray-900 font-extrabold' : 'text-gray-500 hover:text-gray-700'">
                 Login
             </button>
 
             <button @click="isLogin = false"
                 class="w-1/2 relative z-10 font-medium py-2 rounded text-sm transition-colors duration-300"
-                :class="!isLogin ? 'text-gray-900' : 'text-gray-500 hover:text-gray-700'">
+                :class="!isLogin ? 'text-gray-900 font-extrabold' : 'text-gray-500 hover:text-gray-700'">
                 Register
             </button>
         </div>
