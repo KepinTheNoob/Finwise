@@ -15,6 +15,11 @@ return new class extends Migration
     {
         Schema::create('budgets', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('userId')->constrained()->onDelete('cascade');
+            $table->foreignId('categoryId')->constrained()->onDelete('cascade');
+            $table->integer('month');
+            $table->integer('year');
+            $table->decimal('amountLimit', 15, 2);
             $table->timestamps();
         });
     }
