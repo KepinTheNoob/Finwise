@@ -1,0 +1,366 @@
+<x-app>
+
+    <div x-data="transactionManager()" class="relative">
+
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl font-bold text-white">Transactions</h1>
+                <p class="text-gray-400 mt-1">Manage your income and expenses</p>
+            </div>
+            <button @click="openAddModal()"
+                class="flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-brand-500/20 active:scale-95">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add Transaction
+            </button>
+        </div>
+
+        <div class="bg-dark-surface p-4 rounded-xl border border-dark-border mb-6 flex flex-col md:flex-row gap-4">
+            <div class="relative flex-1">
+                <svg class="w-5 h-5 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" fill="none"
+                    viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" x-model="search" placeholder="Search transactions..."
+                    class="w-full bg-dark-bg border border-dark-border text-white text-sm rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:border-brand-500 transition-colors">
+            </div>
+            <select x-model="filterType"
+                class="bg-dark-bg border border-dark-border text-white text-sm rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-colors cursor-pointer">
+                <option value="all">All Types</option>
+                <option value="Income">Income</option>
+                <option value="Expense">Expense</option>
+            </select>
+        </div>
+
+        <div class="bg-dark-surface rounded-xl border border-dark-border overflow-hidden min-h-[400px]">
+            <div class="p-6 border-b border-dark-border">
+                <h3 class="text-white font-semibold" x-text="`All Transactions (${filteredTransactions.length})`"></h3>
+            </div>
+
+            <div class="divide-y divide-dark-border">
+                <template x-for="trx in filteredTransactions" :key="trx.id">
+                    <div class="p-5 flex items-center justify-between hover:bg-white/5 transition-colors group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
+                                :class="trx.type === 'Income' ? 'bg-brand-500/20 text-brand-500' :
+                                    'bg-red-500/20 text-red-500'">
+                                <svg x-show="trx.type === 'Income'" class="w-6 h-6 transform -rotate-45" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                                <svg x-show="trx.type === 'Expense'" class="w-6 h-6 transform rotate-45" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </div>
+
+                            <div>
+                                <p class="text-white font-semibold text-lg" x-text="trx.desc"></p>
+                                <p class="text-sm text-gray-500 flex items-center gap-2">
+                                    <span x-text="trx.category"></span>
+                                    <span class="w-1 h-1 rounded-full bg-gray-600"></span>
+                                    <span x-text="formatDate(trx.date)"></span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center gap-6">
+                            <span class="font-bold text-lg hidden md:block"
+                                :class="trx.type === 'Income' ? 'text-brand-500' : 'text-red-500'"
+                                x-text="(trx.type === 'Income' ? '+' : '-') + formatCurrency(trx.amount)">
+                            </span>
+
+                            <div class="flex items-center gap-2">
+                                <button @click="openEditModal(trx)"
+                                    class="p-2 text-gray-400 hover:text-white hover:bg-white/10 rounded-lg transition-all"
+                                    title="Edit">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </button>
+                                <button @click="confirmDelete(trx.id)"
+                                    class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                                    title="Delete">
+                                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <div x-show="filteredTransactions.length === 0" class="p-10 text-center text-gray-500">
+                    <p>No transactions found.</p>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="isFormModalOpen" style="display: none;"
+            class="fixed inset-0 z-60 flex items-center justify-center px-4"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="closeFormModal()"></div>
+
+            <div class="bg-[#202022] w-full max-w-lg rounded-2xl border border-[#333] shadow-2xl relative z-10 overflow-hidden transform transition-all"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 scale-95 translate-y-5"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                x-transition:leave-end="opacity-0 scale-95 translate-y-5">
+
+                <div class="p-6 border-b border-[#333]">
+                    <h3 class="text-xl font-bold text-white"
+                        x-text="isEditing ? 'Edit Transaction' : 'Add New Transaction'"></h3>
+                    <p class="text-sm text-gray-400 mt-1"
+                        x-text="isEditing ? 'Update your transaction details' : 'Add a new income or expense transaction'">
+                    </p>
+                </div>
+
+                <div class="p-6 space-y-5">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Description</label>
+                        <input type="text" x-model="form.desc" placeholder="e.g., Salary, Groceries"
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Amount (IDR)</label>
+                        <input type="number" x-model="form.amount" placeholder="0"
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Type</label>
+                        <select x-model="form.type"
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all appearance-none cursor-pointer">
+                            <option value="Expense">Expense</option>
+                            <option value="Income">Income</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Category</label>
+                        <select x-model="form.category"
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all appearance-none cursor-pointer">
+                            <option value="Food">Food</option>
+                            <option value="Transport">Transport</option>
+                            <option value="Salary">Salary</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Freelance">Freelance</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Date</label>
+                        <input type="date" x-model="form.date"
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all scheme:dark">
+                    </div>
+                </div>
+
+                <div class="p-6 pt-0">
+                    <button @click="saveTransaction()"
+                        class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-lg transition-all transform active:scale-[0.98] shadow-lg shadow-brand-500/25"
+                        x-text="isEditing ? 'Update Transaction' : 'Add Transaction'">
+                    </button>
+                    <button @click="closeFormModal()"
+                        class="w-full text-gray-500 hover:text-white mt-4 text-sm font-medium transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="isDeleteModalOpen" style="display: none;"
+            class="fixed inset-0 z-60 flex items-center justify-center px-4"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
+            <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isDeleteModalOpen = false"></div>
+
+            <div class="bg-[#202022] w-full max-w-sm rounded-2xl border border-[#333] shadow-2xl relative z-10 p-6 text-center transform transition-all"
+                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90"
+                x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90">
+
+                <div
+                    class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                </div>
+
+                <h3 class="text-xl font-bold text-white mb-2">Delete Transaction?</h3>
+                <p class="text-gray-400 text-sm mb-6">Are you sure you want to delete this transaction? This action
+                    cannot be undone.</p>
+
+                <div class="flex gap-3">
+                    <button @click="isDeleteModalOpen = false"
+                        class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">
+                        Cancel
+                    </button>
+                    <button @click="deleteTransaction()"
+                        class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-red-500/20">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function transactionManager() {
+            return {
+                search: '',
+                filterType: 'all',
+                isFormModalOpen: false,
+                isDeleteModalOpen: false,
+                isEditing: false,
+                deleteId: null,
+
+                transactions: [{
+                        id: 1,
+                        desc: 'Monthly Salary',
+                        amount: 15000000,
+                        type: 'Income',
+                        category: 'Salary',
+                        date: '2024-04-01'
+                    },
+                    {
+                        id: 2,
+                        desc: 'Weekly Groceries',
+                        amount: 1200000,
+                        type: 'Expense',
+                        category: 'Food',
+                        date: '2024-04-02'
+                    },
+                    {
+                        id: 3,
+                        desc: 'Freelance Project',
+                        amount: 3500000,
+                        type: 'Income',
+                        category: 'Freelance',
+                        date: '2024-04-05'
+                    },
+                    {
+                        id: 4,
+                        desc: 'Gas Station',
+                        amount: 350000,
+                        type: 'Expense',
+                        category: 'Transport',
+                        date: '2024-04-06'
+                    },
+                    {
+                        id: 5,
+                        desc: 'Cinema Date',
+                        amount: 250000,
+                        type: 'Expense',
+                        category: 'Entertainment',
+                        date: '2024-04-07'
+                    },
+                ],
+
+                form: {
+                    id: null,
+                    desc: '',
+                    amount: '',
+                    type: 'Expense',
+                    category: 'Food',
+                    date: ''
+                },
+
+                get filteredTransactions() {
+                    return this.transactions.filter(t => {
+                        const matchesSearch = t.desc.toLowerCase().includes(this.search.toLowerCase());
+                        const matchesType = this.filterType === 'all' || t.type === this.filterType;
+                        return matchesSearch && matchesType;
+                    });
+                },
+
+                openAddModal() {
+                    this.isEditing = false;
+                    this.form = {
+                        id: null,
+                        desc: '',
+                        amount: '',
+                        type: 'Expense',
+                        category: 'Food',
+                        date: new Date().toISOString().split('T')[0]
+                    };
+                    this.isFormModalOpen = true;
+                },
+
+                openEditModal(trx) {
+                    this.isEditing = true;
+                    this.form = {
+                        ...trx
+                    };
+                    this.isFormModalOpen = true;
+                },
+
+                closeFormModal() {
+                    this.isFormModalOpen = false;
+                },
+
+                saveTransaction() {
+                    if (this.isEditing) {
+                        const index = this.transactions.findIndex(t => t.id === this.form.id);
+                        if (index !== -1) {
+                            this.transactions[index] = {
+                                ...this.form
+                            };
+                        }
+                    } else {
+                        const newId = this.transactions.length > 0 ? Math.max(...this.transactions.map(t => t.id)) + 1 : 1;
+                        this.transactions.unshift({
+                            ...this.form,
+                            id: newId
+                        });
+                    }
+                    this.closeFormModal();
+                },
+
+                confirmDelete(id) {
+                    this.deleteId = id;
+                    this.isDeleteModalOpen = true;
+                },
+
+                deleteTransaction() {
+                    this.transactions = this.transactions.filter(t => t.id !== this.deleteId);
+                    this.isDeleteModalOpen = false;
+                    this.deleteId = null;
+                },
+
+                formatCurrency(value) {
+                    return new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                        minimumFractionDigits: 0
+                    }).format(value);
+                },
+
+                formatDate(dateString) {
+                    const options = {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    };
+                    return new Date(dateString).toLocaleDateString('en-US', options);
+                }
+            }
+        }
+    </script>
+</x-app>

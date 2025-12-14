@@ -25,3 +25,19 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
 
+Route::get('/transactions', function () {
+    return view('transaction');
+})->name('transactions');
+
+Route::get('/categories', function () {
+    return view('categories');
+})->name('categories');
+
+Route::get('/budgets', function () {
+    return view('budgets');
+})->name('budgets');
+
+Route::get('/profile', function () {
+    return view('profile');
+})->name('profile');
+
