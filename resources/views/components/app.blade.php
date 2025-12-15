@@ -127,28 +127,24 @@
             </nav>
 
             <div class="p-4 border-t border-dark-border mt-auto shrink-0">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <button type="submit" @click="isLogoutModalOpen = true"
-                        class="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative hover:bg-red-500/10 text-gray-400 hover:text-red-500">
-                        <div class="shrink-0 w-6 h-6 flex items-center justify-center">
-                            <svg xmlns="http://www.w3.org/2000/svg"
-                                class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                            </svg>
-                        </div>
-                        <span class="font-medium whitespace-nowrap transition-all duration-300 origin-left overflow-hidden"
-                            x-show="sidebarOpen" x-transition:enter="transition ease-out duration-200"
-                            x-transition:enter-start="opacity-0 translate-x-2"
-                            x-transition:enter-end="opacity-100 translate-x-0">Logout Account</span>
-                        <div x-show="!sidebarOpen"
-                            class="absolute left-14 bg-red-900/90 text-white text-xs px-3 py-1.5 rounded-md shadow-xl opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 z-50 pointer-events-none whitespace-nowrap border border-red-500/20">
-                            Logout</div>
-                    </button>
-                </form>
+                <button type="button" @click="isLogoutModalOpen = true"
+                    class="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative hover:bg-red-500/10 text-gray-400 hover:text-red-500">
+                    <div class="shrink-0 w-6 h-6 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                            class="w-5 h-5 transition-transform group-hover:-translate-x-1" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </div>
+                    <span class="font-medium whitespace-nowrap transition-all duration-300 origin-left overflow-hidden"
+                        x-show="sidebarOpen" x-transition:enter="transition ease-out duration-200"
+                        x-transition:enter-start="opacity-0 translate-x-2"
+                        x-transition:enter-end="opacity-100 translate-x-0">Logout Account</span>
+                    <div x-show="!sidebarOpen"
+                        class="absolute left-14 bg-red-900/90 text-white text-xs px-3 py-1.5 rounded-md shadow-xl opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 z-50 pointer-events-none whitespace-nowrap border border-red-500/20">
+                        Logout</div>
+                </button>
             </div>
         </aside>
 
@@ -208,11 +204,14 @@
                     class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">
                     Cancel
                 </button>
-
-                <a href="{{ route('login') }}"
-                    class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-red-500/20 flex items-center justify-center">
-                    Logout
-                </a>
+                
+                <form method="POST" action="{{ route('logout') }}" class="flex-1">
+                    @csrf
+                    <button type="submit"
+                        class="w-full bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-red-500/20 flex items-center justify-center">
+                        Logout
+                    </button>
+                </form>
             </div>
         </div>
     </div>
