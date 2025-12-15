@@ -257,17 +257,17 @@
                 deleteId: null,
 
                 transactions: @js(
-    $transactions->map(
-        fn($t) => [
-            'id' => $t->id,
-            'desc' => $t->description,
-            'amount' => $t->amount,
-            'type' => ucfirst($t->type),
-            'category' => $t->category->name ?? 'Uncategorized',
-            'date' => $t->transaction_date ? $t->transaction_date->format('Y-m-d') : null,
-        ],
-    ),
-),
+                    $transactions->map(
+                        fn($t) => [
+                            'id' => $t->id,
+                            'desc' => $t->description,
+                            'amount' => $t->amount,
+                            'type' => ucfirst($t->type),
+                            'category' => $t->category->name ?? 'Uncategorized',
+                            'date' => $t->transaction_date ? $t->transaction_date->format('Y-m-d') : null,
+                        ],
+                    ),
+                ),
 
                 form: {
                     id: null,
@@ -288,21 +288,16 @@
 
                 openAddModal() {
                     this.isEditing = false;
-                    // Reset the form
                     this.form = {
                         id: null,
                         description: '',
                         amount: '',
                         type: 'expense',
-                        category_id: '{{ $categories->first()->id ?? '' }}', // Default to first category
+                        category_id: '{{ $categories->first()->id ?? '' }}',
                         transaction_date: new Date().toISOString().split('T')[0]
                     };
                     this.isFormModalOpen = true;
                 },
-
-                // openAddModal() {
-                //     this.isFormModalOpen = true
-                // },
 
                 openEditModal(trx) {
                     this.isEditing = true;
@@ -320,24 +315,6 @@
                 closeFormModal() {
                     this.isFormModalOpen = false;
                 },
-
-                // saveTransaction() {
-                //     if (this.isEditing) {
-                //         const index = this.transactions.findIndex(t => t.id === this.form.id);
-                //         if (index !== -1) {
-                //             this.transactions[index] = {
-                //                 ...this.form
-                //             };
-                //         }
-                //     } else {
-                //         const newId = this.transactions.length > 0 ? Math.max(...this.transactions.map(t => t.id)) + 1 : 1;
-                //         this.transactions.unshift({
-                //             ...this.form,
-                //             id: newId
-                //         });
-                //     }
-                //     this.closeFormModal();
-                // },
 
                 confirmDelete(id) {
                     this.deleteId = id;

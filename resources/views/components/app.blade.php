@@ -161,7 +161,7 @@
                         class="w-10 h-10 rounded-full border border-dark-border">
                     <div class="flex flex-col">
                         <p class="text-xs text-dark-text font-medium uppercase tracking-wider">Welcome back!</p>
-                        <h2 class="text-lg font-bold text-white leading-tight">John Doe</h2>
+                        <h2 class="text-lg font-bold text-white leading-tight">{{ Auth::user()->name }}</h2>
                     </div>
                 </div>
                 <div class="flex items-center gap-4">
