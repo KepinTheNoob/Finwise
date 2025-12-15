@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,10 +48,10 @@ Route::get('/budgets/{id}', [BudgetController::class, 'getBudget'])->name('budge
 Route::put('/budgets/{id}', [BudgetController::class, 'updateBudget'])->name('budgets.update');
 Route::delete('/budgets/{id}', [BudgetController::class, 'deleteBudget'])->name('budgets.destroy');
 
+Route::get('/profile', [ProfileController::class, 'getProfile'])->name('profile');
+Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
-
-Route::get('/profile', function () {
-    return view('profile');
-})->name('profile');

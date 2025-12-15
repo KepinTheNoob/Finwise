@@ -5,12 +5,10 @@
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
             <div class="bg-dark-surface rounded-xl border border-dark-border p-6 shadow-lg h-full flex flex-col">
-
                 <div>
                     <div class="flex items-center gap-3 mb-2">
                         <svg class="w-5 h-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                         </svg>
                         <h3 class="text-lg font-bold text-white">Profile Information</h3>
                     </div>
@@ -18,45 +16,39 @@
                 </div>
 
                 <form @submit.prevent="updateProfile" class="flex-1 flex flex-col justify-between">
-
                     <div class="space-y-5">
                         <div>
                             <label class="block text-sm font-medium text-gray-400 mb-2">Name</label>
-                            <input type="text" x-model="user.name"
-                                class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                            <input type="text" x-model="user.name" required
+                                class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-400 mb-2">Email</label>
-                            <input type="email" x-model="user.email"
-                                class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                            <input type="email" x-model="user.email" required
+                                class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
                         </div>
                     </div>
 
-                    <div class="pt-5"> <button type="submit"
-                            class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-lg transition-all shadow-lg shadow-brand-500/20 active:scale-[0.98]">
+                    <div class="pt-5">
+                        <button type="submit" :disabled="isLoadingProfile"
+                            class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-lg transition-all shadow-lg shadow-brand-500/20 active:scale-[0.98] disabled:opacity-50">
                             <span x-show="!isLoadingProfile">Update Profile</span>
                             <span x-show="isLoadingProfile" class="flex items-center justify-center gap-2">
-                                <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
-                                    fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10"
-                                        stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
+                                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                 </svg>
                                 Saving...
                             </span>
                         </button>
                     </div>
-
                 </form>
             </div>
 
             <div class="bg-dark-surface rounded-xl border border-dark-border p-6 shadow-lg">
                 <div class="flex items-center gap-3 mb-2">
                     <svg class="w-5 h-5 text-brand-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                     <h3 class="text-lg font-bold text-white">Change Password</h3>
                 </div>
@@ -65,31 +57,27 @@
                 <form @submit.prevent="updatePassword" class="space-y-5">
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Current Password</label>
-                        <input type="password" placeholder="••••••••"
-                            class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                        <input type="password" x-model="passwordForm.current_password" required
+                            class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">New Password</label>
-                        <input type="password" placeholder="••••••••"
-                            class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                        <input type="password" x-model="passwordForm.password" required
+                            class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Confirm New Password</label>
-                        <input type="password" placeholder="••••••••"
-                            class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                        <input type="password" x-model="passwordForm.password_confirmation" required
+                            class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
                     </div>
 
-                    <button type="submit"
-                        class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-lg transition-all shadow-lg shadow-brand-500/20 active:scale-[0.98]">
+                    <button type="submit" :disabled="isLoadingPassword"
+                        class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-2.5 rounded-lg transition-all shadow-lg shadow-brand-500/20 active:scale-[0.98] disabled:opacity-50">
                         <span x-show="!isLoadingPassword">Change Password</span>
                         <span x-show="isLoadingPassword" class="flex items-center justify-center gap-2">
-                            <svg class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
+                            <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                             </svg>
                             Updating...
                         </span>
@@ -121,10 +109,7 @@
                     <p class="text-xs text-gray-500 mt-2">This currency will be used throughout the app</p>
                 </div>
 
-                <div class="bg-brand-500/10 border border-brand-500/20 rounded-lg p-4 transition-all"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 translate-y-2"
-                    x-transition:enter-end="opacity-100 translate-y-0">
+                <div class="bg-brand-500/10 border border-brand-500/20 rounded-lg p-4 transition-all">
                     <h4 class="text-brand-500 font-bold text-sm">Current Settings</h4>
                     <div class="mt-1 text-sm text-brand-500/80">
                         <p>Currency: <span x-text="currency"></span></p>
@@ -136,15 +121,18 @@
             </div>
         </div>
 
-        <div x-show="showToast" style="display: none;" x-transition:enter="transition ease-out duration-300"
-            x-transition:enter-start="opacity-0 translate-y-10" x-transition:enter-end="opacity-100 translate-y-0"
-            x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 translate-y-0"
+        <div x-show="showToast" style="display: none;" 
+            x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-10" 
+            x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-300" 
+            x-transition:leave-start="opacity-100 translate-y-0"
             x-transition:leave-end="opacity-0 translate-y-10"
             class="fixed bottom-6 right-6 bg-brand-500 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 z-50">
             <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
             </svg>
-            <span class="font-medium">Changes saved successfully!</span>
+            <span class="font-medium" x-text="toastMessage">Changes saved successfully!</span>
         </div>
 
     </div>
@@ -152,30 +140,84 @@
     <script>
         function profileManager() {
             return {
-                user: {
-                    name: 'Kevin Setiawan',
-                    email: 'kevin@wawan.com'
-                },
+                user: @js(auth()->user()),
                 currency: 'IDR',
+                
+                passwordForm: {
+                    current_password: '',
+                    password: '',
+                    password_confirmation: ''
+                },
+                
                 isLoadingProfile: false,
                 isLoadingPassword: false,
                 showToast: false,
+                toastMessage: 'Saved successfully!',
 
-                updateProfile() {
+                async updateProfile() {
                     this.isLoadingProfile = true;
-                    // Simulate API call
-                    setTimeout(() => {
-                        this.isLoadingProfile = false;
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        
+                        const response = await fetch('/profile', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                name: this.user.name,
+                                email: this.user.email
+                            })
+                        });
+
+                        if (!response.ok) throw await response.json();
+
+                        this.toastMessage = 'Profile updated successfully!';
                         this.triggerToast();
-                    }, 1000);
+                        
+                    } catch (error) {
+                        console.error(error);
+                        alert(error.message || 'Error updating profile.');
+                    } finally {
+                        this.isLoadingProfile = false;
+                    }
                 },
 
-                updatePassword() {
+                async updatePassword() {
                     this.isLoadingPassword = true;
-                    setTimeout(() => {
-                        this.isLoadingPassword = false;
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        
+                        const response = await fetch('/profile/password', {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(this.passwordForm)
+                        });
+
+                        if (!response.ok) {
+                            const errorData = await response.json();
+                            throw new Error(errorData.message || 'Failed to update password');
+                        }
+
+                        this.toastMessage = 'Password changed successfully!';
                         this.triggerToast();
-                    }, 1500);
+                        
+                        this.passwordForm.current_password = '';
+                        this.passwordForm.password = '';
+                        this.passwordForm.password_confirmation = '';
+
+                    } catch (error) {
+                        console.error(error);
+                        alert(error.message);
+                    } finally {
+                        this.isLoadingPassword = false;
+                    }
                 },
 
                 triggerToast() {
