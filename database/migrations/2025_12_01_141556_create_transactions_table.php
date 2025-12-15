@@ -15,12 +15,12 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('userId')->constrained()->onDelete('cascade');
-            $table->foreignId('categoryId')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount', 15, 2);
             $table->enum('type', ['income', 'expense']);
             $table->text('description')->nullable();
-            $table->date('transactionDate');
+            $table->date('transaction_date');
             // $table->string('attachment_path')->nullable();
             $table->timestamps();
         });

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('password');
-            $table->string('currency', 10)->default('IDR');
+            $table->integer('currency')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

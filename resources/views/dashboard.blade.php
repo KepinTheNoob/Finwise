@@ -1,198 +1,172 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finwise Dashboard</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-        }
-        /* Sidebar Styling */
-        .sidebar {
-            min-height: 100vh;
-            background-color: #fff;
-            border-right: 1px solid #dee2e6;
-        }
-        .sidebar .nav-link {
-            color: #495057;
-            font-weight: 500;
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.25rem;
-            border-radius: 0.375rem;
-        }
-        .sidebar .nav-link.active {
-            color: #0f766e;
-            background-color: #dcfce7; /* Light green from image */
-        }
-        .sidebar .nav-link:hover:not(.active) {
-            background-color: #f1f3f5;
-        }
-        .sidebar-brand {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #212529;
-            padding: 1.5rem 1rem;
-        }
-        .logout-link {
-            color: #dc3545;
-            font-weight: 500;
-            text-decoration: none;
-            padding: 0.75rem 1rem;
-            display: block;
-            border-top: 1px solid #dee2e6;
-        }
+<x-app title="Dashboard">
 
-        /* Main Content Styling */
-        .main-content {
-            padding-bottom: 2rem;
-        }
-        .header-title {
-            font-weight: 700;
-            color: #212529;
-        }
-        .card-icon {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-size: 1.25rem;
-        }
-        /* Custom Colors */
-        .text-success-custom { color: #10b981; }
-        .bg-success-soft { background-color: #dcfce7; color: #10b981; }
-        .text-danger-custom { color: #ef4444; }
-        .bg-danger-soft { background-color: #fee2e2; color: #ef4444; }
-
-        /* Placeholder Cards */
-        .placeholder-card {
-            min-height: 300px;
-            background-color: #fff;
-            border-radius: 0.5rem;
-            border: 1px solid #dee2e6;
-        }
-
-        .sidebar {
-            background-color: #fff;
-            border-right: 1px solid #dee2e6;
-        }
-
-        /* Mobile toggle (hamburger icon) */
-        .sidebar-toggle-btn {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1050;
-        }
-
-        /* Make sidebar overlay on mobile */
-        @media (max-width: 767px) {
-            .sidebar {
-                position: fixed;
-                z-index: 1040;
-                width: 250px;
-                height: 100vh;
-                background-color: #fff;
-                transform: translateX(-100%);
-                transition: transform .3s ease;
-            }
-            .sidebar.show {
-                transform: translateX(0);
-            }
-        }
-    </style>
-</head>
-<body>
-<button class="btn btn-primary d-md-none sidebar-toggle-btn" 
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#sidebarMenu">
-    <i class="bi bi-list"></i>
-</button>
-
-<div class="container-fluid">
-    <div class="row">
-        <x-sidebar />
-
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 main-content">
-            <x-topbar />
-
-            <div class="mb-4">
-                <h2 class="fw-bold">Dashboard</h2>
-                <p class="text-muted">Overview of your financial status</p>
-            </div>
-
-            <div class="row g-4 mb-4">
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h6 class="card-subtitle text-muted">Total Income</h6>
-                                    <h3 class="card-title fw-bold mt-2">Rp 15,700,000</h3>
-                                </div>
-                                <div class="card-icon bg-success-soft">
-                                    <i class="bi bi-arrow-up-right"></i>
-                                </div>
-                            </div>
-                            <p class="card-text text-success-custom small fw-medium">
-                                <i class="bi bi-arrow-up"></i> +12.5% from last month
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h6 class="card-subtitle text-muted">Total Expense</h6>
-                                    <h3 class="card-title fw-bold mt-2">Rp 8,420,000</h3>
-                                </div>
-                                <div class="card-icon bg-danger-soft">
-                                    <i class="bi bi-arrow-down-right"></i>
-                                </div>
-                            </div>
-                            <p class="card-text text-danger-custom small fw-medium">
-                                <i class="bi bi-arrow-down"></i> +8.2% from last month
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <h6 class="card-subtitle text-muted">Total Income</h6>
-                                    <h3 class="card-title fw-bold mt-2">Rp 6,830,000</h3>
-                                </div>
-                                <div class="card-icon bg-success-soft">
-                                    <i class="bi bi-graph-up"></i>
-                                </div>
-                            </div>
-                            <p class="card-text text-success-custom small fw-medium">
-                                <i class="bi bi-arrow-up"></i> +12.5% from last month
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="placeholder-card mb-4"></div>
-
-            <div class="placeholder-card"></div>
-
-        </main>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <x-stat-card title="Total Income" amount="Rp 15.700.000" trend="+12.5%" trendType="up" />
+        <x-stat-card title="Total Expense" amount="Rp 8.420.000" trend="+8.2%" trendType="down" />
+        <x-stat-card title="Net Income" amount="Rp 6.830.000" trend="+12.5%" trendType="up" />
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <div class="bg-dark-surface rounded-2xl border border-dark-border p-6 mb-8 shadow-lg">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-white font-semibold text-lg">This Month's Overview</h3>
+            <button
+                class="text-xs text-brand-500 bg-brand-500/10 px-3 py-1 rounded-full font-medium hover:bg-brand-500 hover:text-white transition-colors">
+                Download Report
+            </button>
+        </div>
+        <div id="financeChart" class="w-full h-80"></div>
+    </div>
+
+    <div class="bg-dark-surface rounded-2xl border border-dark-border p-6 shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-white font-semibold text-lg">Recent Transactions</h3>
+            <a href="{{ route('transactions.index') }}"
+                class="text-xs text-gray-400 hover:text-brand-500 transition-colors">View All</a>
+        </div>
+
+        <div class="space-y-3">
+            <div
+                class="flex items-center justify-between p-4 hover:bg-white/5 rounded-xl transition-all cursor-pointer group border border-transparent hover:border-white/5">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-full bg-brand-500/20 text-brand-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6 transform -rotate-45" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">Salary Payment</p>
+                        <p class="text-xs text-gray-500">Received from PT Finwise Tech</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="block text-brand-500 font-bold text-lg">+Rp 15.000.000</span>
+                    <span class="text-xs text-gray-500">Feb 28, 2024</span>
+                </div>
+            </div>
+
+            <div
+                class="flex items-center justify-between p-4 hover:bg-white/5 rounded-xl transition-all cursor-pointer group border border-transparent hover:border-white/5">
+                <div class="flex items-center gap-4">
+                    <div
+                        class="w-12 h-12 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <svg class="w-6 h-6 transform rotate-45" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-white font-medium">Supermarket Monthly</p>
+                        <p class="text-xs text-gray-500">Groceries & Supplies</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <span class="block text-red-500 font-bold text-lg">-Rp 1.200.000</span>
+                    <span class="text-xs text-gray-500">Feb 27, 2024</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var options = {
+                series: [{
+                    name: 'Amount',
+                    data: [12000000, -5000000, 13000000, -5500000, 14500000, -6000000, 15500000, -
+                        6500000
+                    ]
+                }],
+                chart: {
+                    type: 'bar',
+                    height: 350,
+                    toolbar: {
+                        show: false
+                    },
+                    fontFamily: 'Inter, sans-serif',
+                    background: 'transparent'
+                },
+                colors: [function({
+                    value
+                }) {
+                    return value > 0 ? '#10B981' : '#EF4444'
+                }],
+                plotOptions: {
+                    bar: {
+                        borderRadius: 6,
+                        columnWidth: '55%',
+                        colors: {
+                            ranges: [{
+                                    from: -1e9,
+                                    to: 0,
+                                    color: '#EF4444'
+                                },
+                                {
+                                    from: 0,
+                                    to: 1e9,
+                                    color: '#10B981'
+                                }
+                            ]
+                        }
+                    }
+                },
+                dataLabels: {
+                    enabled: false
+                },
+                grid: {
+                    borderColor: '#333333',
+                    strokeDashArray: 4,
+                    yaxis: {
+                        lines: {
+                            show: true
+                        }
+                    }
+                },
+                xaxis: {
+                    categories: ['Jan', 'Exp', 'Feb', 'Exp', 'Mar', 'Exp', 'Apr', 'Exp'],
+                    labels: {
+                        style: {
+                            colors: '#A1A1AA'
+                        }
+                    },
+                    axisBorder: {
+                        show: false
+                    },
+                    axisTicks: {
+                        show: false
+                    }
+                },
+                yaxis: {
+                    labels: {
+                        style: {
+                            colors: '#A1A1AA'
+                        },
+                        formatter: (val) => val / 1000 + 'k'
+                    }
+                },
+                tooltip: {
+                    theme: 'dark',
+                    y: {
+                        formatter: (val) => "Rp " + val.toLocaleString()
+                    }
+                },
+                fill: {
+                    type: 'gradient',
+                    gradient: {
+                        shade: 'dark',
+                        type: "vertical",
+                        opacityFrom: 1,
+                        opacityTo: 0.6
+                    }
+                }
+            };
+            var chart = new ApexCharts(document.querySelector("#financeChart"), options);
+            chart.render();
+        });
+    </script>
+
+</x-app>
+>>>>>>> 4bf841fa3ede98479c80a7732937f9de9f3c93bd
