@@ -6,6 +6,7 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +53,4 @@ Route::get('/profile', [ProfileController::class, 'getProfile'])->name('profile'
 Route::put('/profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
 Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('password.update');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'getDashboard'])->name('dashboard');
