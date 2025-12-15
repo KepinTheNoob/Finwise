@@ -12,13 +12,12 @@ class Budget extends Model
     protected $fillable = [
         'user_id',
         'category_id',
-        'month',
-        'year',
-        'amount_limit',
+        'period',
+        'amount',
     ];
 
     protected $casts = [
-        'amount_limit' => 'decimal:2',
+        'amount' => 'decimal:2',
     ];
 
     public function user()

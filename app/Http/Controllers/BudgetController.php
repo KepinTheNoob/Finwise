@@ -4,30 +4,61 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Budget;
+use App\Models\Category;
+use App\Models\Transaction;
+use Illuminate\Support\Facades\Auth;
 
 class BudgetController extends Controller
 {
-    public function getBudgets()
+    public function getBudgets(Request $request)
     {
-        return Budget::with(['user', 'category'])
-            ->orderBy('year', 'desc')
-            ->orderBy('month', 'desc')
+        $userId = Auth::id();
+        $categories = Category::where('user_id', $userId)->get();
+
+        $budgetsData = Budget::with('category')
+            ->where('user_id', $userId)
             ->get();
+
+        $budgets = $budgetsData->map(function ($budget) use ($userId) {
+            $spent = Transaction::where('user_id', $userId)
+                ->where('category_id', $budget->category_id)
+                ->where('type', 'expense')
+                ->whereMonth('transaction_date', date('m')) 
+                ->whereYear('transaction_date', date('Y'))
+                ->sum('amount');
+
+            return [
+                'id'          => $budget->id,
+                'category_id' => $budget->category_id,
+                'category'    => $budget->category->name ?? 'Unknown',
+                'limit'       => (float) $budget->amount,
+                'spent'       => (float) $spent,
+                'period'      => $budget->period,
+            ];
+        });
+
+        return view('budgets', compact('budgets', 'categories'));
     }
 
     public function createBudget(Request $request)
     {
         $validated = $request->validate([
-            'userId'      => 'required|exists:users,id',
-            'categoryId'  => 'required|exists:categories,id',
-            'month'       => 'required|integer|min:1|max:12',
-            'year'        => 'required|integer|min:2000|max:2100',
-            'amount_limit'=> 'required|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'amount'      => 'required|numeric|min:0',
+            'period'      => 'required|string|in:Monthly,Weekly,Yearly'
         ]);
 
-        $budget = Budget::create($validated);
+        $exists = Budget::where('user_id', auth()->id())
+            ->where('category_id', $validated['category_id'])
+            ->exists();
 
-        return response()->json($budget, 201);
+        if ($exists) {
+            return response()->json(['message' => 'Budget for this category already exists'], 422);
+        }
+
+        auth()->user()->budgets()->create($validated);
+
+        return response()->json(['message' => 'Budget created successfully']);
     }
 
     public function getBudget($id)
@@ -41,24 +72,23 @@ class BudgetController extends Controller
     public function updateBudget(Request $request, $id)
     {
         $validated = $request->validate([
-            'userId'      => 'sometimes|exists:users,id',
-            'categoryId'  => 'sometimes|exists:categories,id',
-            'month'       => 'sometimes|integer|min:1|max:12',
-            'year'        => 'sometimes|integer|min:2000|max:2100',
-            'amount_limit'=> 'sometimes|numeric|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'amount'      => 'required|numeric|min:0',
+            'period'      => 'required|string|in:Monthly,Weekly,Yearly'
         ]);
 
-        $budget = Budget::findOrFail($id);
+        $budget = auth()->user()->budgets()->findOrFail($id);
+        
         $budget->update($validated);
 
-        return response()->json($budget);
+        return response()->json(['message' => 'Budget updated successfully']);
     }
 
-    public function destroyBudget($id)
+    public function deleteBudget($id)
     {
-        $budget = Budget::findOrFail($id);
+        $budget = Budget::where('user_id', Auth::id())->findOrFail($id);
         $budget->delete();
 
-        return response()->json(['message' => 'Budget deleted successfully']);
+        return response()->json(['message' => 'Budget deleted']);
     }
 }

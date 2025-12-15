@@ -58,16 +58,15 @@
             </div>
         </div>
 
-        <div class="space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <template x-for="budget in budgets" :key="budget.id">
                 <div
                     class="bg-dark-surface p-6 rounded-xl border border-dark-border shadow-lg hover:border-brand-500/30 transition-all duration-300">
-
                     <div class="flex justify-between items-start mb-4">
                         <div>
                             <div class="flex items-center gap-3">
                                 <h3 class="text-xl font-bold text-white" x-text="budget.category"></h3>
-                                <span x-show="budget.spent > budget.limit"
+                                <span x-show="Number(budget.spent) > Number(budget.limit)"
                                     class="flex items-center gap-1 text-xs text-red-500 bg-red-500/10 px-2 py-0.5 rounded border border-red-500/20">
                                     <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -110,33 +109,36 @@
 
                     <div class="w-full bg-[#18181b] rounded-full h-3 overflow-hidden relative">
                         <div class="h-3 rounded-full transition-all duration-1000 ease-out relative"
-                            :class="budget.spent > budget.limit ? 'bg-red-500' : 'bg-brand-500'"
+                            :class="Number(budget.spent) > Number(budget.limit) ? 'bg-red-500' : 'bg-brand-500'"
                             :style="`width: ${calculatePercentage(budget.spent, budget.limit)}%`">
                         </div>
                     </div>
 
                     <div class="flex justify-between items-center mt-2 text-xs">
                         <span class="font-bold"
-                            :class="budget.spent > budget.limit ? 'text-red-500' : 'text-brand-500'"
+                            :class="Number(budget.spent) > Number(budget.limit) ? 'text-red-500' : 'text-brand-500'"
                             x-text="calculatePercentage(budget.spent, budget.limit) + '%'">
                         </span>
 
                         <span class="text-gray-500">
-                            <template x-if="budget.spent <= budget.limit">
+                            <template x-if="Number(budget.spent) <= Number(budget.limit)">
                                 <span>Rp <span
                                         x-text="new Intl.NumberFormat('id-ID').format(budget.limit - budget.spent)"></span>
                                     remaining</span>
                             </template>
-                            <template x-if="budget.spent > budget.limit">
+                            <template x-if="Number(budget.spent) > Number(budget.limit)">
                                 <span class="text-red-400">-Rp <span
                                         x-text="new Intl.NumberFormat('id-ID').format(budget.spent - budget.limit)"></span>
                                     excess</span>
                             </template>
                         </span>
                     </div>
-
                 </div>
             </template>
+
+            <div x-show="budgets.length === 0" class="col-span-full p-10 text-center text-gray-500">
+                <p>No budgets set yet. Click "Add Budget" to get started.</p>
+            </div>
         </div>
 
         <div x-show="isFormModalOpen" style="display: none;"
@@ -164,20 +166,25 @@
                 <div class="p-6 space-y-5">
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Category</label>
-                        <input type="text" x-model="form.category" placeholder="e.g., Food, Shopping"
-                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                        <select x-model="form.category_id"
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
+                            <option value="">Select Category</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Budget Limit (IDR)</label>
-                        <input type="number" x-model="form.limit" placeholder="0"
-                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                        <input type="number" x-model="form.amount" placeholder="0"
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all placeholder-gray-600">
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Period</label>
                         <select x-model="form.period"
-                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all appearance-none cursor-pointer">
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all cursor-pointer">
                             <option value="Monthly">Monthly</option>
                             <option value="Weekly">Weekly</option>
                             <option value="Yearly">Yearly</option>
@@ -187,8 +194,8 @@
 
                 <div class="p-6 pt-0">
                     <button @click="saveBudget()"
-                        class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-lg transition-all transform active:scale-[0.98] shadow-lg shadow-brand-500/25"
-                        x-text="isEditing ? 'Update Budget' : 'Add Budget'">
+                        class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-brand-500/25"
+                        x-text="isEditing ? 'Update Budget' : 'Save Budget'">
                     </button>
                     <button @click="closeFormModal()"
                         class="w-full text-gray-500 hover:text-white mt-4 text-sm font-medium transition-colors">
@@ -205,29 +212,17 @@
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isDeleteModalOpen = false"></div>
-
-            <div class="bg-[#202022] w-full max-w-sm rounded-2xl border border-[#333] shadow-2xl relative z-10 p-6 text-center transform transition-all"
-                x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90"
-                x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90">
-
-                <div
-                    class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div class="bg-[#202022] w-full max-w-sm rounded-2xl border border-[#333] shadow-2xl relative z-10 p-6 text-center transform transition-all">
+                <div class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                 </div>
-
                 <h3 class="text-xl font-bold text-white mb-2">Delete Budget?</h3>
-                <p class="text-gray-400 text-sm mb-6">Are you sure you want to delete this budget plan? This action
-                    cannot be undone.</p>
-
+                <p class="text-gray-400 text-sm mb-6">Are you sure you want to delete this budget plan?</p>
                 <div class="flex gap-3">
-                    <button @click="isDeleteModalOpen = false"
-                        class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">Cancel</button>
-                    <button @click="deleteBudget()"
-                        class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-red-500/20">Delete</button>
+                    <button @click="isDeleteModalOpen = false" class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">Cancel</button>
+                    <button @click="deleteBudget()" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg">Delete</button>
                 </div>
             </div>
         </div>
@@ -242,39 +237,15 @@
                 isEditing: false,
                 deleteId: null,
 
-                // Dummy Data
-                budgets: [{
-                        id: 1,
-                        category: 'Food',
-                        limit: 2000000,
-                        spent: 1450000,
-                        period: 'Monthly'
-                    },
-                    {
-                        id: 2,
-                        category: 'Transportation',
-                        limit: 1000000,
-                        spent: 750000,
-                        period: 'Monthly'
-                    },
-                    {
-                        id: 3,
-                        category: 'Entertainment',
-                        limit: 1500000,
-                        spent: 1650000,
-                        period: 'Monthly'
-                    }, // Over budget example
-                ],
+                budgets: @js($budgets),
 
                 form: {
                     id: null,
-                    category: '',
-                    limit: '',
-                    period: 'Monthly',
-                    spent: 0
+                    category_id: '',
+                    amount: '',
+                    period: 'Monthly'
                 },
 
-                // Computed Totals
                 get totalLimit() {
                     return this.budgets.reduce((sum, item) => sum + Number(item.limit), 0);
                 },
@@ -282,15 +253,13 @@
                     return this.budgets.reduce((sum, item) => sum + Number(item.spent), 0);
                 },
 
-                // Actions
                 openAddModal() {
                     this.isEditing = false;
                     this.form = {
                         id: null,
-                        category: '',
-                        limit: '',
-                        period: 'Monthly',
-                        spent: 0
+                        category_id: '',
+                        amount: '',
+                        period: 'Monthly'
                     };
                     this.isFormModalOpen = true;
                 },
@@ -298,7 +267,10 @@
                 openEditModal(budget) {
                     this.isEditing = true;
                     this.form = {
-                        ...budget
+                        id: budget.id,
+                        category_id: budget.category_id,
+                        amount: budget.limit,
+                        period: budget.period
                     };
                     this.isFormModalOpen = true;
                 },
@@ -307,22 +279,33 @@
                     this.isFormModalOpen = false;
                 },
 
-                saveBudget() {
-                    if (this.isEditing) {
-                        const index = this.budgets.findIndex(b => b.id === this.form.id);
-                        if (index !== -1) {
-                            this.budgets[index] = {
-                                ...this.form
-                            };
-                        }
-                    } else {
-                        const newId = this.budgets.length > 0 ? Math.max(...this.budgets.map(b => b.id)) + 1 : 1;
-                        this.budgets.push({
-                            ...this.form,
-                            id: newId
+                async saveBudget() {
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                        const url = this.isEditing ? `/budgets/${this.form.id}` : '/budgets';
+                        const method = this.isEditing ? 'PUT' : 'POST';
+
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(this.form)
                         });
+
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            const data = await response.json();
+                            alert(data.message || 'Error saving budget');
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert('Network error');
                     }
-                    this.closeFormModal();
                 },
 
                 confirmDelete(id) {
@@ -330,13 +313,27 @@
                     this.isDeleteModalOpen = true;
                 },
 
-                deleteBudget() {
-                    this.budgets = this.budgets.filter(b => b.id !== this.deleteId);
-                    this.isDeleteModalOpen = false;
-                    this.deleteId = null;
+                async deleteBudget() {
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        const response = await fetch(`/budgets/${this.deleteId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        if (response.ok) {
+                            this.budgets = this.budgets.filter(b => b.id !== this.deleteId);
+                            this.isDeleteModalOpen = false;
+                            this.deleteId = null;
+                        }
+                    } catch (e) {
+                        console.error(e);
+                    }
                 },
 
-                // Helpers
                 formatCurrency(value) {
                     return new Intl.NumberFormat('id-ID', {
                         style: 'currency',
@@ -346,12 +343,11 @@
                 },
 
                 calculatePercentage(spent, limit) {
-                    if (limit == 0) return 0;
-                    let percent = (spent / limit) * 100;
-                    return Math.min(percent, 100).toFixed(1); // Cap visual at 100% width
+                    if (Number(limit) === 0) return 0;
+                    let percent = (Number(spent) / Number(limit)) * 100;
+                    return Math.min(percent, 100).toFixed(1);
                 }
             }
         }
     </script>
-
-    </x-app-layout>
+</x-app>

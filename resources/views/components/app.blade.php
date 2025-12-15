@@ -109,7 +109,7 @@
                                 d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg></x-slot>
                 </x-sidebar-link>
-                <x-sidebar-link :href="route('budgets')" :active="request()->routeIs('budgets')" label="Budgets">
+                <x-sidebar-link :href="route('budgets.index')" :active="request()->routeIs('budgets.index')" label="Budgets">
                     <x-slot name="icon"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -189,7 +189,7 @@
             </header>
 
             <main class="flex-1 overflow-y-auto p-8 relative scroll-smooth">
-                @if (!request()->routeIs('transactions.index') && !request()->routeIs('categories.index') && !request()->routeIs('budgets'))
+                @if (!request()->routeIs('transactions.index') && !request()->routeIs('categories.index') && !request()->routeIs('budgets.index'))
                     <div class="flex items-center justify-between mb-8">
                         <div>
                             <h1 class="text-3xl font-bold text-white capitalize tracking-tight">{{ $title ?? 'Page' }}
