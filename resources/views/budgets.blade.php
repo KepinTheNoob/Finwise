@@ -122,14 +122,12 @@
 
                         <span class="text-gray-500">
                             <template x-if="Number(budget.spent) <= Number(budget.limit)">
-                                <span>Rp <span
-                                        x-text="new Intl.NumberFormat('id-ID').format(budget.limit - budget.spent)"></span>
-                                    remaining</span>
+                                <span x-text="formatCurrency(budget.limit - budget.spent)"></span> remaining
                             </template>
                             <template x-if="Number(budget.spent) > Number(budget.limit)">
-                                <span class="text-red-400">-Rp <span
-                                        x-text="new Intl.NumberFormat('id-ID').format(budget.spent - budget.limit)"></span>
-                                    excess</span>
+                                <span class="text-red-400">
+                                    <span x-text="formatCurrency(budget.spent - budget.limit)"></span> excess
+                                </span>
                             </template>
                         </span>
                     </div>
@@ -212,17 +210,22 @@
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isDeleteModalOpen = false"></div>
-            <div class="bg-[#202022] w-full max-w-sm rounded-2xl border border-[#333] shadow-2xl relative z-10 p-6 text-center transform transition-all">
-                <div class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div
+                class="bg-[#202022] w-full max-w-sm rounded-2xl border border-[#333] shadow-2xl relative z-10 p-6 text-center transform transition-all">
+                <div
+                    class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                 </div>
                 <h3 class="text-xl font-bold text-white mb-2">Delete Budget?</h3>
                 <p class="text-gray-400 text-sm mb-6">Are you sure you want to delete this budget plan?</p>
                 <div class="flex gap-3">
-                    <button @click="isDeleteModalOpen = false" class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">Cancel</button>
-                    <button @click="deleteBudget()" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg">Delete</button>
+                    <button @click="isDeleteModalOpen = false"
+                        class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">Cancel</button>
+                    <button @click="deleteBudget()"
+                        class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg">Delete</button>
                 </div>
             </div>
         </div>
@@ -232,6 +235,7 @@
     <script>
         function budgetManager() {
             return {
+                currency: @js($currency),
                 isFormModalOpen: false,
                 isDeleteModalOpen: false,
                 isEditing: false,
@@ -335,12 +339,22 @@
                 },
 
                 formatCurrency(value) {
-                    return new Intl.NumberFormat('id-ID', {
-                        style: 'currency',
-                        currency: 'IDR',
-                        minimumFractionDigits: 0
-                    }).format(value);
+                    const localeMap = {
+                        IDR: 'id-ID',
+                        USD: 'en-US',
+                        EUR: 'de-DE',
+                        JPY: 'ja-JP',
+                    };
+
+                    return new Intl.NumberFormat(
+                        localeMap[this.currency] || 'en-US', {
+                            style: 'currency',
+                            currency: this.currency,
+                            minimumFractionDigits: this.currency === 'JPY' ? 0 : 2,
+                        }
+                    ).format(value);
                 },
+
 
                 calculatePercentage(spent, limit) {
                     if (Number(limit) === 0) return 0;

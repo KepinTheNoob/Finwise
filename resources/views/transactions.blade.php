@@ -249,6 +249,16 @@
     <script>
         function transactionManager() {
             return {
+                currency: @js(auth()->user()->currency ?? 'IDR'),
+
+                currencyLocales: {
+                    IDR: 'id-ID',
+                    USD: 'en-US',
+                    EUR: 'de-DE',
+                    GBP: 'en-GB',
+                    JPY: 'ja-JP'
+                },
+
                 isFormModalOpen: false,
                 search: '',
                 filterType: 'all',
@@ -257,25 +267,26 @@
                 deleteId: null,
 
                 transactions: @js(
-                    $transactions->map(
-                        fn($t) => [
-                            'id' => $t->id,
-                            'desc' => $t->description,
-                            'amount' => $t->amount,
-                            'type' => ucfirst($t->type),
-                            'category' => $t->category->name ?? 'Uncategorized',
-                            'date' => $t->transaction_date ? $t->transaction_date->format('Y-m-d') : null,
-                        ],
-                    ),
-                ),
+    $transactions->map(
+        fn($t) => [
+            'id' => $t->id,
+            'desc' => $t->description,
+            'amount' => $t->amount,
+            'type' => ucfirst($t->type),
+            'category' => $t->category->name ?? 'Uncategorized',
+            'category_id' => $t->category_id,
+            'date' => $t->transaction_date?->format('Y-m-d'),
+        ],
+    ),
+),
 
                 form: {
                     id: null,
-                    desc: '',
+                    description: '',
                     amount: '',
-                    type: 'Expense',
-                    category: 'Food',
-                    date: ''
+                    type: 'expense',
+                    category_id: '',
+                    transaction_date: ''
                 },
 
                 get filteredTransactions() {
@@ -322,46 +333,42 @@
                 },
 
                 async deleteTransaction() {
-                    try {
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    const csrfToken = document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content');
 
-                        const response = await fetch(`/transactions/${this.deleteId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
-                            }
-                        });
-
-                        if (response.ok) {
-                            this.transactions = this.transactions.filter(t => t.id !== this.deleteId);
-                            this.isDeleteModalOpen = false;
-                            this.deleteId = null;
-                        } else {
-                            alert('Something went wrong. Could not delete.');
+                    const response = await fetch(`/transactions/${this.deleteId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
                         }
-                    } catch (error) {
-                        console.error('Error:', error);
-                        alert('Network error.');
+                    });
+
+                    if (response.ok) {
+                        this.transactions = this.transactions.filter(t => t.id !== this.deleteId);
+                        this.isDeleteModalOpen = false;
+                    } else {
+                        alert('Failed to delete transaction');
                     }
                 },
 
                 formatCurrency(value) {
-                    return new Intl.NumberFormat('id-ID', {
+                    const locale = this.currencyLocales[this.currency] || 'en-US';
+
+                    return new Intl.NumberFormat(locale, {
                         style: 'currency',
-                        currency: 'IDR',
+                        currency: this.currency,
                         minimumFractionDigits: 0
                     }).format(value);
                 },
 
                 formatDate(dateString) {
-                    const options = {
+                    return new Date(dateString).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric'
-                    };
-                    return new Date(dateString).toLocaleDateString('en-US', options);
+                    });
                 }
             }
         }

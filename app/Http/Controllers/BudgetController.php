@@ -37,7 +37,11 @@ class BudgetController extends Controller
             ];
         });
 
-        return view('budgets', compact('budgets', 'categories'));
+        return view('budgets', [
+            'budgets'    => $budgets,
+            'categories' => $categories,
+            'currency'   => auth()->user()->currency ?? 'IDR',
+        ]);
     }
 
     public function createBudget(Request $request)

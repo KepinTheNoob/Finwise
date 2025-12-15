@@ -1,29 +1,22 @@
 <x-app title="Dashboard">
-    @php
-        function formatIdr($number) {
-            $prefix = $number < 0 ? '-Rp ' : 'Rp ';
-            return $prefix . number_format(abs($number), 0, ',', '.');
-        }
-    @endphp
-
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <x-stat-card 
             title="Total Income" 
-            amount="{{ formatIdr($currentIncome) }}" 
+            amount="{{ money($currentIncome) }}" 
             trend="{{ $incomeTrend > 0 ? '+' : '' }}{{ $incomeTrend }}%" 
             trendType="{{ $incomeTrend >= 0 ? 'up' : 'down' }}" 
         />
 
         <x-stat-card 
             title="Total Expense" 
-            amount="{{ formatIdr($currentExpense) }}" 
+            amount="{{ money($currentExpense) }}" 
             trend="{{ $expenseTrend > 0 ? '+' : '' }}{{ $expenseTrend }}%" 
             trendType="{{ $expenseTrend <= 0 ? 'up' : 'down' }}" 
         />
 
         <x-stat-card 
             title="Net Income" 
-            amount="{{ formatIdr($currentNet) }}" 
+            amount="{{ money($currentNet) }}" 
             trend="{{ $netTrend > 0 ? '+' : '' }}{{ $netTrend }}%" 
             trendType="{{ $netTrend >= 0 ? 'up' : 'down' }}" 
         />
@@ -68,7 +61,7 @@
                     </div>
                     <div class="text-right">
                         <span class="block font-bold text-lg {{ $trx->type === 'income' ? 'text-brand-500' : 'text-red-500' }}">
-                            {{ $trx->type === 'income' ? '+' : '-' }}{{ formatIdr($trx->amount) }}
+                            {{ $trx->type === 'income' ? '+' : '-' }}{{ money($trx->amount) }}
                         </span>
                         <span class="text-xs text-gray-500">
                             {{ date('M d, Y', strtotime($trx->transaction_date)) }}
@@ -82,6 +75,7 @@
     </div>
 
     <script>
+        const userCurrency = @json(auth()->user()->currency ?? 'IDR');
         document.addEventListener('DOMContentLoaded', function() {
             var options = {
                 series: [{
@@ -132,8 +126,11 @@
                     theme: 'dark',
                     y: {
                         formatter: (val) => {
-                            let prefix = val < 0 ? '-Rp ' : 'Rp ';
-                            return prefix + new Intl.NumberFormat('id-ID').format(Math.abs(val));
+                            return new Intl.NumberFormat(undefined, {
+                                style: 'currency',
+                                currency: userCurrency,
+                                minimumFractionDigits: userCurrency === 'JPY' ? 0 : 2
+                            }).format(val);
                         }
                     }
                 },
