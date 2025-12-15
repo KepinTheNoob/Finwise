@@ -39,22 +39,16 @@ Route::post('/transactions', [TransactionController::class, 'createTransactions'
 Route::get('/transactions/{id}', [TransactionController::class, 'getTransaction'])
     ->name('transactions.show');
 
-Route::post('/transactions/{id}/update', [TransactionController::class, 'updateTransaction'])
+Route::put('/transactions/{id}', [TransactionController::class, 'updateTransaction'])
     ->name('transactions.update');
 
-Route::post('/transactions/{id}/delete', [TransactionController::class, 'deleteTransaction'])
+Route::delete('/transactions/{id}', [TransactionController::class, 'deleteTransaction'])
     ->name('transactions.destroy');
 
 Route::get('/categories', [CategoryController::class, 'getCategories'])->name('categories.index');
-Route::post('/categories', [CategoryController::class, 'createCategories'])->name('categories.store');
+Route::post('/categories', [CategoryController::class, 'createCategory'])->name('categories.store');
 Route::put('/categories/{id}', [CategoryController::class, 'updateCategory'])->name('categories.update');
 Route::delete('/categories/{id}', [CategoryController::class, 'deleteCategory'])->name('categories.destroy');
-
-// Route::get('/budgets', [BudgetController::class, 'getBudgets']);
-// Route::post('/budgets', [BudgetController::class, 'createBudgets']);
-// Route::get('/budgets/{id}', [BudgetController::class, 'getBudget']);
-// Route::put('/budgets/{id}', [BudgetController::class, 'updateBudget']);
-// Route::delete('/budgets/{id}', [BudgetController::class, 'deleteBudget']);
 
 Route::get('/dashboard', function () {
     return view('dashboard');

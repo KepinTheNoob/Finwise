@@ -20,17 +20,14 @@ class CategoryController extends Controller
     public function createCategory(Request $request)
     {
         $validated = $request->validate([
-            'userId' => 'required|exists:users,id',
-            'name'   => 'required|string|max:255',
-            'type'   => 'required|string|in:income,expense',
-            'color'  => 'required|regex:/^#([a-f0-9]{6})$/i',
+            'name'  => 'required|string|max:255',
+            'type'  => 'required|string|in:Income,Expense', 
+            'color' => 'required|regex:/^#([a-f0-9]{6})$/i',
         ]);
+        
+        $category = $request->user()->categories()->create($validated);
 
-        $category = Category::create($validated);
-
-        return redirect()
-            ->route('categories.index')
-            ->with('success', 'Category created successfully');
+        return response()->json($category->loadCount('transactions'), 201);
     }
 
     // public function getCategory($id)
@@ -44,27 +41,23 @@ class CategoryController extends Controller
     public function updateCategory(Request $request, $id)
     {
         $validated = $request->validate([
-            'userId' => 'sometimes|exists:users,id',
-            'name'   => 'sometimes|string|max:255',
-            'type'   => 'sometimes|string|in:income,expense',
+            'name'  => 'sometimes|string|max:255',
+            'type'  => 'sometimes|string|in:Income,Expense',
+            'color' => 'sometimes|regex:/^#([a-f0-9]{6})$/i',
         ]);
 
-        $category = Category::findOrFail($id);
+        $category = Category::where('user_id', $request->user()->id)->findOrFail($id);
         $category->update($validated);
 
-        return redirect()
-            ->route('categories.index')
-            ->with('success', 'Category updated successfully');
+        // Return the updated object as JSON
+        return response()->json($category->loadCount('transactions'));
     }
 
-    public function deleteCategory($id)
+    public function deleteCategory(Request $request, $id)
     {
-        $category = Category::findOrFail($id);
-
+        $category = Category::where('user_id', $request->user()->id)->findOrFail($id);
         $category->delete();
 
-        return redirect()
-            ->route('categories.index')
-            ->with('success', 'Category deleted successfully');
+        return response()->json(['message' => 'Deleted successfully']);
     }
 }

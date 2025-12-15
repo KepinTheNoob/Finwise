@@ -29,7 +29,7 @@ class TransactionController extends Controller
         ]);
 
         $transaction = Transaction::create([
-            'user_id'     => Auth::id(),
+            'user_id'     => $request->user()->id,
             'category_id' => $validated['category_id'],
             'amount'      => $validated['amount'],
             'type'        => strtolower($validated['type']),
@@ -72,9 +72,7 @@ class TransactionController extends Controller
     {
         $transaction = Transaction::findOrFail($id);
         $transaction->delete();
-
-        return redirect()
-            ->route('transactions.index')
-            ->with('success', 'Transaction deleted successfully');
+        
+        return response()->json(['message' => 'Transaction deleted successfully']);
     }
 }
