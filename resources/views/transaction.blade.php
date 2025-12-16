@@ -26,12 +26,49 @@
                 <input type="text" x-model="search" placeholder="Search transactions..."
                     class="w-full bg-dark-bg border border-dark-border text-white text-sm rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:border-brand-500 transition-colors">
             </div>
-            <select x-model="filterType"
-                class="bg-dark-bg border border-dark-border text-white text-sm rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-colors cursor-pointer">
-                <option value="all">All Types</option>
-                <option value="Income">Income</option>
-                <option value="Expense">Expense</option>
-            </select>
+            <div x-data="{ open: false, selected: 'all' }" class="relative">
+                <button @click="open = !open" @click.outside="open = false"
+                    class="w-full flex items-center gap-2 bg-dark-bg border border-dark-border text-white text-sm rounded-lg pl-4 pr-3 py-2.5 focus:outline-none focus:border-brand-500 transition-colors cursor-pointer text-left">
+                    <span x-text="selected === 'all' ? 'All Types' : selected"></span>
+
+                    <svg class="w-4 h-4 text-gray-400 transition-transform duration-200 ease-in-out"
+                        :class="open ? 'rotate-180' : 'rotate-0'" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="opacity-0 scale-95 -translate-y-2"
+                    x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 scale-95 -translate-y-2"
+                    class="absolute left-0 z-50 mt-1 w-full bg-dark-bg border border-dark-border rounded-lg shadow-xl overflow-hidden"
+                    style="display: none;">
+
+                    <div class="py-1">
+                        <button @click="selected = 'all'; filterType = 'all'; open = false"
+                            class="w-full text-left px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
+                            :class="selected === 'all' ? 'bg-brand-500/10 text-brand-500' : ''">
+                            All Types
+                        </button>
+                        <button @click="selected = 'Income'; filterType = 'Income'; open = false"
+                            class="w-full text-left px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
+                            :class="selected === 'Income' ? 'bg-brand-500/10 text-brand-500' : ''">
+                            Income
+                        </button>
+                        <button @click="selected = 'Expense'; filterType = 'Expense'; open = false"
+                            class="w-full text-left px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
+                            :class="selected === 'Expense' ? 'bg-brand-500/10 text-brand-500' : ''">
+                            Expense
+                        </button>
+                    </div>
+                </div>
+                
+            </div>
+
+
         </div>
 
         <div class="bg-dark-surface rounded-xl border border-dark-border overflow-hidden min-h-[400px]">
