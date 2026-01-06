@@ -124,7 +124,7 @@ The name **FinWise** was chosen to reflect the combination of **"Fin"** Finance 
 ## Getting Started
 ```bash
 1. Clone the repository:
-   git clone https://github.com/yourusername/finwise.git
+   git clone https://github.com/KepinTheNoob/Finwise.git
 2. composer install
 3. php artisan migrate
 4. composer dump-autoload
