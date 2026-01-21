@@ -9,7 +9,7 @@
 
     <script src="{{ asset('js/dashboard.js') }}"></script>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" x-cloak>
         <x-stat-card title="Total Income" amount="{{ money($currentIncome) }}"
             trend="{{ $incomeTrend > 0 ? '+' : '' }}{{ $incomeTrend }}%"
             trendType="{{ $incomeTrend == 0 ? '=' : ($incomeTrend > 0 ? 'up' : 'down') }}" />

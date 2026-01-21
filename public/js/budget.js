@@ -1,15 +1,14 @@
 function budgetManager() {
     return {
         currency: window.currencyData || "IDR",
+        categoryCount: window.categoryCount || 0,
 
         isFormModalOpen: false,
         isDeleteModalOpen: false,
+        isNoCategoryModalOpen: false,
+
         isEditing: false,
         deleteId: null,
-        currentPage: 1,
-        perPage: 3,
-        jumpOpen: false,
-        jumpPage: null,
 
         budgets: window.budgetsData || [],
 
@@ -19,6 +18,11 @@ function budgetManager() {
             amount: "",
             period: "Monthly",
         },
+
+        currentPage: 1,
+        perPage: 3,
+        jumpOpen: false,
+        jumpPage: null,
 
         get totalLimit() {
             return this.budgets.reduce(
@@ -43,6 +47,14 @@ function budgetManager() {
         get paginatedBudgets() {
             const start = (this.currentPage - 1) * this.perPage;
             return this.budgets.slice(start, start + this.perPage);
+        },
+
+        checkCategories() {
+            if (this.categoryCount === 0) {
+                this.isNoCategoryModalOpen = true;
+            } else {
+                this.openAddModal();
+            }
         },
 
         openAddModal() {
@@ -104,22 +116,26 @@ function budgetManager() {
 
             const method = this.isEditing ? "PUT" : "POST";
 
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-CSRF-TOKEN": csrfToken,
-                    Accept: "application/json",
-                },
-                body: JSON.stringify(this.form),
-            });
+            try {
+                const response = await fetch(url, {
+                    method,
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": csrfToken,
+                        Accept: "application/json",
+                    },
+                    body: JSON.stringify(this.form),
+                });
 
-            if (response.ok) {
-                window.location.reload();
-                this.currentPage = 1;
-            } else {
-                const data = await response.json();
-                alert(data.message || "Error saving budget");
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || "Error saving budget");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Network error");
             }
         },
 
@@ -128,19 +144,31 @@ function budgetManager() {
                 .querySelector('meta[name="csrf-token"]')
                 .getAttribute("content");
 
-            await fetch(`/budgets/${this.deleteId}`, {
-                method: "DELETE",
-                headers: {
-                    "X-CSRF-TOKEN": csrfToken,
-                    Accept: "application/json",
-                },
-            });
+            try {
+                await fetch(`/budgets/${this.deleteId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRF-TOKEN": csrfToken,
+                        Accept: "application/json",
+                    },
+                });
 
-            this.budgets = this.budgets.filter((b) => b.id !== this.deleteId);
+                this.budgets = this.budgets.filter(
+                    (b) => b.id !== this.deleteId,
+                );
+                this.isDeleteModalOpen = false;
+                this.deleteId = null;
 
-            this.isDeleteModalOpen = false;
-            this.deleteId = null;
-            this.currentPage = 1;
+                if (
+                    this.paginatedBudgets.length === 0 &&
+                    this.currentPage > 1
+                ) {
+                    this.currentPage--;
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error deleting budget");
+            }
         },
 
         formatCurrency(value) {

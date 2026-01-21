@@ -1,13 +1,13 @@
 <x-app title="Budgets">
-
     <script>
-        window.budgetsData = @js($budgets ?? []);
-        window.currencyData = @js($currency ?? 'IDR');
+        window.budgetsData = @json($budgets ?? []);
+        window.currencyData = @json(auth()->user()->currency ?? 'IDR');
+        window.categoryCount = {{ $categories->count() }};
     </script>
 
     <script src="{{ asset('js/budget.js') }}"></script>
 
-    <div x-data="budgetManager()" class="relative h-full flex flex-col">
+    <div x-data="budgetManager()" class="relative h-full flex flex-col" x-cloak>
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 shrink-0">
             <div>
@@ -15,7 +15,7 @@
                 <p class="text-gray-400 mt-1">Set spending limits and track your progress</p>
             </div>
 
-            <button @click="openAddModal()" x-show="budgets.length > 0"
+            <button @click="checkCategories()" x-show="budgets.length > 0"
                 class="flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-brand-500/20 active:scale-95">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -69,6 +69,7 @@
         <div x-show="budgets.length > 0" x-transition:enter="transition ease-out duration-300"
             x-transition:enter-start="opacity-0 translate-y-5" x-transition:enter-end="opacity-100 translate-y-0"
             class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6 pb-8">
+
             <template x-for="budget in paginatedBudgets" :key="budget.id">
                 <div
                     class="bg-dark-surface p-6 rounded-xl border border-dark-border shadow-lg hover:border-brand-500/30 transition-all duration-300">
@@ -137,7 +138,8 @@
         <div x-show="budgets.length === 0" x-transition:enter="transition ease-out duration-500"
             x-transition:enter-start="opacity-0 translate-y-10" x-transition:enter-end="opacity-100 translate-y-0"
             class="flex-1 flex flex-col items-center justify-center text-center -mt-10">
-            <div class="relative mb-6 group cursor-pointer" @click="openAddModal()">
+
+            <div class="relative mb-6 group cursor-pointer" @click="checkCategories()">
                 <div
                     class="absolute inset-0 bg-brand-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                 </div>
@@ -167,66 +169,37 @@
 
         <div x-show="totalPages > 1"
             class="fixed bottom-6 right-6 z-40 bg-dark-surface border border-dark-border rounded-xl px-5 py-3 shadow-2xl flex items-center gap-4">
-
-            <p class="text-sm text-gray-400 whitespace-nowrap">
-                Page
-                <span class="text-white font-semibold" x-text="currentPage"></span>
-                of
-                <span class="text-white font-semibold" x-text="totalPages"></span>
-            </p>
-
+            <p class="text-sm text-gray-400 whitespace-nowrap">Page <span class="text-white font-semibold"
+                    x-text="currentPage"></span> of <span class="text-white font-semibold"
+                    x-text="totalPages"></span></p>
             <div class="flex items-center gap-1">
-
                 <button @click="prevPage()" :disabled="currentPage === 1"
-                    class="px-2 py-1 rounded-md text-gray-400 hover:text-white disabled:opacity-30">
-                    ‹
-                </button>
-
-                <template x-for="page in [1, 2]" :key="'start-' + page">
-                    <button x-show="page <= totalPages" @click="goToPage(page)"
-                        class="w-8 h-8 rounded-md text-sm font-medium"
-                        :class="page === currentPage ?
-                            'bg-brand-500 text-white' :
-                            'text-gray-400 hover:text-white hover:bg-white/10'">
-                        <span x-text="page"></span>
-                    </button>
-                </template>
-
-                <button x-show="totalPages > 4" @click="jumpOpen = true" class="px-2 text-gray-400 hover:text-white">
-                    ...
-                </button>
-
-                <template x-for="page in [totalPages - 1, totalPages]" :key="'end-' + page">
-                    <button x-show="page > 2" @click="goToPage(page)" class="w-8 h-8 rounded-md text-sm font-medium"
-                        :class="page === currentPage ?
-                            'bg-brand-500 text-white' :
-                            'text-gray-400 hover:text-white hover:bg-white/10'">
-                        <span x-text="page"></span>
-                    </button>
-                </template>
-
+                    class="px-2 py-1 rounded-md text-gray-400 hover:text-white disabled:opacity-30">‹</button>
+                <template x-for="page in [1, 2]" :key="'start-' + page"><button x-show="page <= totalPages"
+                        @click="goToPage(page)" class="w-8 h-8 rounded-md text-sm font-medium"
+                        :class="page === currentPage ? 'bg-brand-500 text-white' :
+                            'text-gray-400 hover:text-white hover:bg-white/10'"><span
+                            x-text="page"></span></button></template>
+                <button x-show="totalPages > 4" @click="jumpOpen = true"
+                    class="px-2 text-gray-400 hover:text-white">...</button>
+                <template x-for="page in [totalPages - 1, totalPages]" :key="'end-' + page"><button
+                        x-show="page > 2" @click="goToPage(page)" class="w-8 h-8 rounded-md text-sm font-medium"
+                        :class="page === currentPage ? 'bg-brand-500 text-white' :
+                            'text-gray-400 hover:text-white hover:bg-white/10'"><span
+                            x-text="page"></span></button></template>
                 <button @click="nextPage()" :disabled="currentPage === totalPages"
-                    class="px-2 py-1 rounded-md text-gray-400 hover:text-white disabled:opacity-30">
-                    ›
-                </button>
+                    class="px-2 py-1 rounded-md text-gray-400 hover:text-white disabled:opacity-30">›</button>
             </div>
-
             <div x-show="jumpOpen" @click.outside="jumpOpen = false"
                 class="absolute bottom-14 right-0 bg-dark-bg border border-dark-border rounded-lg p-3 shadow-xl w-40">
-
                 <p class="text-xs text-gray-400 mb-2">Jump to page</p>
-
                 <input type="number" min="1" :max="totalPages" x-model.number="jumpPage"
                     @keydown.enter="goToPage(jumpPage); jumpOpen=false"
                     class="w-full bg-[#18181b] border border-[#333] text-white rounded-md px-3 py-2 text-sm">
-
                 <button @click="goToPage(jumpPage); jumpOpen=false"
-                    class="w-full mt-2 bg-brand-500 hover:bg-brand-600 text-white text-sm py-1.5 rounded-md">
-                    Go
-                </button>
+                    class="w-full mt-2 bg-brand-500 hover:bg-brand-600 text-white text-sm py-1.5 rounded-md">Go</button>
             </div>
         </div>
-
 
         <div x-show="isFormModalOpen" style="display: none;"
             class="fixed inset-0 z-60 flex items-center justify-center px-4"
@@ -304,6 +277,49 @@
                         class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">Cancel</button>
                     <button @click="deleteBudget()"
                         class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg">Delete</button>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="isNoCategoryModalOpen" style="display: none;"
+            class="fixed inset-0 z-70 flex items-center justify-center px-4"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="isNoCategoryModalOpen = false"></div>
+            <div class="bg-[#202022] w-full max-w-sm rounded-2xl border border-[#333] shadow-2xl relative z-10 p-8 pb-6 text-center transform transition-all"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 scale-90 translate-y-4"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                x-transition:leave-end="opacity-0 scale-90 translate-y-4">
+                <div class="relative w-20 h-20 mx-auto mb-6">
+                    <div class="absolute inset-0 bg-orange-500/20 rounded-full animate-ping opacity-75"></div>
+                    <div
+                        class="relative w-20 h-20 bg-[#2A2A2E] rounded-full flex items-center justify-center border-2 border-orange-500/30">
+                        <svg class="w-10 h-10 text-orange-500" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Categories Required</h3>
+                <p class="text-gray-400 text-sm mb-8 leading-relaxed">You need to create at least one category before
+                    you can add a budget.</p>
+                <div class="flex flex-col gap-3">
+                    <a href="{{ route('categories.index') }}"
+                        class="group w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 active:scale-[0.98]">
+                        <span>Create Category</span>
+                        <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </a>
+                    <button @click="isNoCategoryModalOpen = false"
+                        class="w-full text-gray-500 hover:text-white py-2 text-md font-medium transition-colors mt-4">Cancel</button>
                 </div>
             </div>
         </div>

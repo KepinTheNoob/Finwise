@@ -1,6 +1,7 @@
 function transactionManager() {
     return {
         currency: window.userCurrency ?? "IDR",
+        categoryCount: window.categoryCount ?? 0,
 
         currencyLocales: {
             IDR: "id-ID",
@@ -12,11 +13,11 @@ function transactionManager() {
 
         isFormModalOpen: false,
         isDeleteModalOpen: false,
-        isEditing: false,
+        isNoCategoryModalOpen: false,
 
+        isEditing: false,
         search: "",
         filterType: "all",
-
         deleteId: null,
 
         transactions: window.transactionsData ?? [],
@@ -32,7 +33,6 @@ function transactionManager() {
 
         currentPage: 1,
         perPage: 7,
-
         jumpOpen: false,
         jumpPage: null,
 
@@ -46,10 +46,8 @@ function transactionManager() {
                 const matchesSearch = t.desc
                     .toLowerCase()
                     .includes(this.search.toLowerCase());
-
                 const matchesType =
                     this.filterType === "all" || t.type === this.filterType;
-
                 return matchesSearch && matchesType;
             });
         },
@@ -61,6 +59,14 @@ function transactionManager() {
         get paginatedTransactions() {
             const start = (this.currentPage - 1) * this.perPage;
             return this.filteredTransactions.slice(start, start + this.perPage);
+        },
+
+        checkCategories() {
+            if (this.categoryCount === 0) {
+                this.isNoCategoryModalOpen = true;
+            } else {
+                this.openAddModal();
+            }
         },
 
         resetPagination() {
@@ -124,28 +130,32 @@ function transactionManager() {
                 .querySelector('meta[name="csrf-token"]')
                 .getAttribute("content");
 
-            const response = await fetch(`/transactions/${this.deleteId}`, {
-                method: "DELETE",
-                headers: {
-                    "X-CSRF-TOKEN": csrfToken,
-                    Accept: "application/json",
-                },
-            });
+            try {
+                const response = await fetch(`/transactions/${this.deleteId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "X-CSRF-TOKEN": csrfToken,
+                        Accept: "application/json",
+                    },
+                });
 
-            if (response.ok) {
-                this.transactions = this.transactions.filter(
-                    (t) => t.id !== this.deleteId,
-                );
-                this.isDeleteModalOpen = false;
-                this.resetPagination();
-            } else {
-                alert("Failed to delete transaction");
+                if (response.ok) {
+                    this.transactions = this.transactions.filter(
+                        (t) => t.id !== this.deleteId,
+                    );
+                    this.isDeleteModalOpen = false;
+                    this.resetPagination();
+                } else {
+                    alert("Failed to delete transaction");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error deleting transaction");
             }
         },
 
         formatCurrency(value) {
             const locale = this.currencyLocales[this.currency] || "en-US";
-
             return new Intl.NumberFormat(locale, {
                 style: "currency",
                 currency: this.currency,
