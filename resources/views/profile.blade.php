@@ -1,5 +1,5 @@
 <x-app title="Profile">
-    <div x-data="profileManager()" x-init="initCurrencyWatcher()">
+    <div x-data="profileManager()" x-init="initCurrencyWatcher()" x-cloak>
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
             <div class="bg-dark-surface rounded-xl border border-dark-border p-6 shadow-lg h-full flex flex-col">

@@ -22,7 +22,7 @@
 
     <script src="{{ asset('js/transaction.js') }}"></script>
 
-    <div x-data="transactionManager()" class="relative">
+    <div x-data="transactionManager()" class="relative" x-cloak>
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>

@@ -5,7 +5,7 @@
     </script>
     <script src="{{ asset('js/categories.js') }}"></script>
 
-    <div x-data="categoryManager()" class="relative min-h-screen flex flex-col">
+    <div x-data="categoryManager()" class="relative min-h-screen flex flex-col" x-cloak>
 
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 shrink-0">

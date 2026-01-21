@@ -7,7 +7,7 @@
 
     <script src="{{ asset('js/budget.js') }}"></script>
 
-    <div x-data="budgetManager()" class="relative h-full flex flex-col">
+    <div x-data="budgetManager()" class="relative h-full flex flex-col" x-cloak>
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 shrink-0">
             <div>
