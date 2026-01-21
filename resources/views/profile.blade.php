@@ -58,20 +58,57 @@
                 <p class="text-gray-400 text-sm mb-6">Update your account password</p>
 
                 <form @submit.prevent="updatePassword" class="space-y-5">
+
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Current Password</label>
-                        <input type="password" x-model="passwordForm.current_password" required
-                            class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
+                        <div class="relative" x-data="{ show: false }">
+                            <input :type="show ? 'text' : 'password'" x-model="passwordForm.current_password" required
+                                class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg pl-4 pr-10 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
+
+                            <button type="button" @click="show = !show"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer focus:outline-none">
+                                <img x-show="!show" src="/images/view.png" alt="Show"
+                                    class="h-5 w-5 opacity-70 hover:opacity-100 transition-opacity">
+                                <img x-show="show" src="/images/hide.png" alt="Hide"
+                                    class="h-5 w-5 opacity-70 hover:opacity-100 transition-opacity"
+                                    style="display: none;">
+                            </button>
+                        </div>
                     </div>
+
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">New Password</label>
-                        <input type="password" x-model="passwordForm.password" required
-                            class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
+                        <div class="relative" x-data="{ show: false }">
+                            <input :type="show ? 'text' : 'password'" x-model="passwordForm.password" required
+                                class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg pl-4 pr-10 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
+
+                            <button type="button" @click="show = !show"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer focus:outline-none">
+                                <img x-show="!show" src="/images/view.png" alt="Show"
+                                    class="h-5 w-5 opacity-70 hover:opacity-100 transition-opacity">
+                                <img x-show="show" src="/images/hide.png" alt="Hide"
+                                    class="h-5 w-5 opacity-70 hover:opacity-100 transition-opacity"
+                                    style="display: none;">
+                            </button>
+                        </div>
                     </div>
+
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Confirm New Password</label>
-                        <input type="password" x-model="passwordForm.password_confirmation" required
-                            class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
+                        <div class="relative" x-data="{ show: false }">
+                            <input :type="show ? 'text' : 'password'" x-model="passwordForm.password_confirmation"
+                                required
+                                class="w-full bg-[#18181b] border border-dark-border text-white rounded-lg pl-4 pr-10 py-2.5 focus:outline-none focus:border-brand-500 transition-all">
+
+                            <button type="button" @click="show = !show"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer focus:outline-none">
+                                <img x-show="!show" src="/images/view.png" alt="Show"
+                                    class="h-5 w-5 opacity-70 hover:opacity-100 transition-opacity">
+                                <img x-show="show" src="/images/hide.png" alt="Hide"
+                                    class="h-5 w-5 opacity-70 hover:opacity-100 transition-opacity"
+                                    style="display: none;">
+                            </button>
+                        </div>
                     </div>
 
                     <button type="submit" :disabled="isLoadingPassword"
@@ -79,8 +116,8 @@
                         <span x-show="!isLoadingPassword">Change Password</span>
                         <span x-show="isLoadingPassword" class="flex items-center justify-center gap-2">
                             <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
-                                    stroke-width="4"></circle>
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4"></circle>
                                 <path class="opacity-75" fill="currentColor"
                                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
                                 </path>

@@ -17,6 +17,7 @@
 
         window.userCurrency = @js(auth()->user()->currency ?? 'IDR');
         window.defaultCategoryId = @js($categories->first()->id ?? '');
+        window.categoryCount = {{ $categories->count() }};
     </script>
 
     <script src="{{ asset('js/transaction.js') }}"></script>
@@ -28,7 +29,7 @@
                 <h1 class="text-3xl font-bold text-white">Transactions</h1>
                 <p class="text-gray-400 mt-1">Manage your income and expenses</p>
             </div>
-            <button @click="openAddModal()"
+            <button @click="checkCategories()"
                 class="flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-brand-500/20 active:scale-95">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -158,13 +159,12 @@
 
                 <div x-show="filteredTransactions.length === 0"
                     class="flex flex-col items-center justify-center py-20 px-4 text-center animate-fade-in-up">
-
-                    <div class="relative mb-6 group">
+                    <div class="relative mb-6 group mt-[8rem]">
                         <div
                             class="absolute inset-0 bg-brand-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                         </div>
 
-                        <div @click="openAddModal()"
+                        <div @click="checkCategories()"
                             class="relative w-24 h-24 bg-[#18181b] border-2 border-dashed border-[#333] rounded-full flex items-center justify-center group-hover:border-brand-500/50 transition-colors duration-300">
                             <svg class="w-10 h-10 text-gray-600 group-hover:text-brand-500 transition-colors duration-300"
                                 fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -361,6 +361,59 @@
                     <button @click="deleteTransaction()"
                         class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-red-500/20">
                         Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="isNoCategoryModalOpen" style="display: none;"
+            class="fixed inset-0 z-80 flex items-center justify-center px-4"
+            x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+            x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+            x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
+            <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" @click="isNoCategoryModalOpen = false"></div>
+
+            <div class="bg-[#202022] w-full max-w-sm rounded-2xl border border-[#333] shadow-2xl relative z-10 p-8 pb-6 text-center transform transition-all"
+                x-transition:enter="transition ease-out duration-300"
+                x-transition:enter-start="opacity-0 scale-90 translate-y-4"
+                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+                x-transition:leave="transition ease-in duration-200"
+                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+                x-transition:leave-end="opacity-0 scale-90 translate-y-4">
+
+                <div class="relative w-20 h-20 mx-auto mb-6">
+                    <div class="absolute inset-0 bg-orange-500/20 rounded-full animate-ping opacity-75"></div>
+
+                    <div
+                        class="relative w-20 h-20 bg-[#2A2A2E] rounded-full flex items-center justify-center border-2 border-orange-500/30">
+                        <svg class="w-10 h-10 text-orange-500" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <h3 class="text-xl font-bold text-white mb-2">Categories Required</h3>
+                <p class="text-gray-400 text-sm mb-8 leading-relaxed">
+                    You need to create at least one category before you can add a transaction.
+                </p>
+
+                <div class="flex flex-col gap-3">
+                    <a href="{{ route('categories.index') }}"
+                        class="group w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2 active:scale-[0.98]">
+                        <span>Create Category</span>
+                        <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                    </a>
+
+                    <button @click="isNoCategoryModalOpen = false"
+                        class="w-full text-gray-500 hover:text-white py-2 text-md font-medium transition-colors mt-4">
+                        Cancel
                     </button>
                 </div>
             </div>
