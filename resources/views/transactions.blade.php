@@ -1,4 +1,26 @@
 <x-app>
+
+    <script>
+        window.transactionsData = @js(
+    $transactions->map(
+        fn($t) => [
+            'id' => $t->id,
+            'desc' => $t->description,
+            'amount' => $t->amount,
+            'type' => ucfirst($t->type),
+            'category' => $t->category->name ?? 'Uncategorized',
+            'category_id' => $t->category_id,
+            'date' => $t->transaction_date?->format('Y-m-d'),
+        ],
+    ),
+);
+
+        window.userCurrency = @js(auth()->user()->currency ?? 'IDR');
+        window.defaultCategoryId = @js($categories->first()->id ?? '');
+    </script>
+
+    <script src="{{ asset('js/transaction.js') }}"></script>
+
     <div x-data="transactionManager()" class="relative">
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -68,13 +90,17 @@
             </div>
         </div>
 
-        <div class="bg-dark-surface rounded-xl border border-dark-border overflow-hidden min-h-[400px]">
+        <div class="bg-dark-surface rounded-xl border border-dark-border overflow-hidden flex flex-col"
+            style="height: calc(100vh - 420px);">
+
             <div class="p-6 border-b border-dark-border">
                 <h3 class="text-white font-semibold" x-text="`All Transactions (${filteredTransactions.length})`"></h3>
             </div>
 
-            <div class="divide-y divide-dark-border">
-                <template x-for="trx in filteredTransactions" :key="trx.id">
+            <div class="divide-y divide-dark-border overflow-y-auto flex-1">
+
+                <template x-for="trx in paginatedTransactions" :key="trx.id">
+
                     <div class="p-5 flex items-center justify-between hover:bg-white/5 transition-colors group">
                         <div class="flex items-center gap-4">
                             <div class="w-12 h-12 rounded-full flex items-center justify-center transition-transform group-hover:scale-110"
@@ -130,11 +156,106 @@
                     </div>
                 </template>
 
-                <div x-show="filteredTransactions.length === 0" class="p-10 text-center text-gray-500">
-                    <p>No transactions found.</p>
+                <div x-show="filteredTransactions.length === 0"
+                    class="flex flex-col items-center justify-center py-20 px-4 text-center animate-fade-in-up">
+
+                    <div class="relative mb-6 group">
+                        <div
+                            class="absolute inset-0 bg-brand-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                        </div>
+
+                        <div @click="openAddModal()"
+                            class="relative w-24 h-24 bg-[#18181b] border-2 border-dashed border-[#333] rounded-full flex items-center justify-center group-hover:border-brand-500/50 transition-colors duration-300">
+                            <svg class="w-10 h-10 text-gray-600 group-hover:text-brand-500 transition-colors duration-300"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+
+                            <div
+                                class="absolute -bottom-1 -right-1 w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center border-4 border-[#202022]">
+                                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 4v16m8-8H4" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3 class="text-xl font-bold text-white mb-2">No Transactions Found</h3>
+                    <p class="text-gray-400 text-sm max-w-sm mb-8 leading-relaxed">
+                        It looks like you haven't added any transactions yet. Start tracking your income and expenses to
+                        see them here.
+                    </p>
+
                 </div>
             </div>
         </div>
+
+        <div x-show="totalPages > 1"
+            class="fixed bottom-6 right-6 z-40 bg-dark-surface border border-dark-border rounded-xl px-5 py-3 shadow-2xl flex items-center gap-4">
+
+            <!-- Page info -->
+            <p class="text-sm text-gray-400 whitespace-nowrap">
+                Page
+                <span class="text-white font-semibold" x-text="currentPage"></span>
+                of
+                <span class="text-white font-semibold" x-text="totalPages"></span>
+            </p>
+
+            <div class="flex items-center gap-1">
+                <button @click="prevPage()" :disabled="currentPage === 1"
+                    class="px-2 py-1 rounded-md text-gray-400 hover:text-white disabled:opacity-30">
+                    ‹
+                </button>
+
+                <template x-for="page in [1, 2]" :key="'start-' + page">
+                    <button x-show="page <= totalPages" @click="goToPage(page)"
+                        class="w-8 h-8 rounded-md text-sm font-medium"
+                        :class="page === currentPage ?
+                            'bg-brand-500 text-white' :
+                            'text-gray-400 hover:text-white hover:bg-white/10'">
+                        <span x-text="page"></span>
+                    </button>
+                </template>
+
+                <button x-show="totalPages > 4" @click="jumpOpen = true" class="px-2 text-gray-400 hover:text-white">
+                    ...
+                </button>
+
+
+                <template x-for="page in [totalPages - 1, totalPages]" :key="'end-' + page">
+                    <button x-show="page > 2" @click="goToPage(page)" class="w-8 h-8 rounded-md text-sm font-medium"
+                        :class="page === currentPage ?
+                            'bg-brand-500 text-white' :
+                            'text-gray-400 hover:text-white hover:bg-white/10'">
+                        <span x-text="page"></span>
+                    </button>
+                </template>
+
+                <button @click="nextPage()" :disabled="currentPage === totalPages"
+                    class="px-2 py-1 rounded-md text-gray-400 hover:text-white disabled:opacity-30">
+                    ›
+                </button>
+            </div>
+
+            <div x-show="jumpOpen" @click.outside="jumpOpen = false"
+                class="absolute bottom-14 right-0 bg-dark-bg border border-dark-border rounded-lg p-3 shadow-xl w-40">
+
+                <p class="text-xs text-gray-400 mb-2">Jump to page</p>
+
+                <input type="number" min="1" :max="totalPages" x-model.number="jumpPage"
+                    @keydown.enter="goToPage(jumpPage); jumpOpen=false"
+                    class="w-full bg-[#18181b] border border-[#333] text-white rounded-md px-3 py-2 text-sm">
+
+                <button @click="goToPage(jumpPage); jumpOpen=false"
+                    class="w-full mt-2 bg-brand-500 hover:bg-brand-600 text-white text-sm py-1.5 rounded-md">
+                    Go
+                </button>
+            </div>
+        </div>
+
 
         <div x-show="isFormModalOpen" style="display: none;"
             class="fixed inset-0 z-60 flex items-center justify-center px-4"
@@ -247,131 +368,5 @@
 
     </div>
 
-    <script>
-        function transactionManager() {
-            return {
-                currency: @js(auth()->user()->currency ?? 'IDR'),
 
-                currencyLocales: {
-                    IDR: 'id-ID',
-                    USD: 'en-US',
-                    EUR: 'de-DE',
-                    GBP: 'en-GB',
-                    JPY: 'ja-JP'
-                },
-
-                isFormModalOpen: false,
-                search: '',
-                filterType: 'all',
-                isDeleteModalOpen: false,
-                isEditing: false,
-                deleteId: null,
-
-                transactions: @js(
-    $transactions->map(
-        fn($t) => [
-            'id' => $t->id,
-            'desc' => $t->description,
-            'amount' => $t->amount,
-            'type' => ucfirst($t->type),
-            'category' => $t->category->name ?? 'Uncategorized',
-            'category_id' => $t->category_id,
-            'date' => $t->transaction_date?->format('Y-m-d'),
-        ],
-    ),
-),
-
-                form: {
-                    id: null,
-                    description: '',
-                    amount: '',
-                    type: 'expense',
-                    category_id: '',
-                    transaction_date: ''
-                },
-
-                get filteredTransactions() {
-                    return this.transactions.filter(t => {
-                        const matchesSearch = t.desc.toLowerCase().includes(this.search.toLowerCase());
-                        const matchesType = this.filterType === 'all' || t.type === this.filterType;
-                        return matchesSearch && matchesType;
-                    });
-                },
-
-                openAddModal() {
-                    this.isEditing = false;
-                    this.form = {
-                        id: null,
-                        description: '',
-                        amount: '',
-                        type: 'expense',
-                        category_id: '{{ $categories->first()->id ?? '' }}',
-                        transaction_date: new Date().toISOString().split('T')[0]
-                    };
-                    this.isFormModalOpen = true;
-                },
-
-                openEditModal(trx) {
-                    this.isEditing = true;
-                    this.form = {
-                        id: trx.id,
-                        description: trx.desc,
-                        amount: trx.amount,
-                        type: trx.type.toLowerCase(),
-                        category_id: trx.category_id,
-                        transaction_date: trx.date
-                    };
-                    this.isFormModalOpen = true;
-                },
-
-                closeFormModal() {
-                    this.isFormModalOpen = false;
-                },
-
-                confirmDelete(id) {
-                    this.deleteId = id;
-                    this.isDeleteModalOpen = true;
-                },
-
-                async deleteTransaction() {
-                    const csrfToken = document
-                        .querySelector('meta[name="csrf-token"]')
-                        .getAttribute('content');
-
-                    const response = await fetch(`/transactions/${this.deleteId}`, {
-                        method: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken,
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    if (response.ok) {
-                        this.transactions = this.transactions.filter(t => t.id !== this.deleteId);
-                        this.isDeleteModalOpen = false;
-                    } else {
-                        alert('Failed to delete transaction');
-                    }
-                },
-
-                formatCurrency(value) {
-                    const locale = this.currencyLocales[this.currency] || 'en-US';
-
-                    return new Intl.NumberFormat(locale, {
-                        style: 'currency',
-                        currency: this.currency,
-                        minimumFractionDigits: 0
-                    }).format(value);
-                },
-
-                formatDate(dateString) {
-                    return new Date(dateString).toLocaleDateString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric'
-                    });
-                }
-            }
-        }
-    </script>
 </x-app>

@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="id" class="dark">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Finwise' }} - Dashboard</title>
+    <title>FinWise - {{ $title ?? 'Finwise' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
@@ -54,6 +55,19 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #444;
         }
+
+        [x-cloak] {
+            display: none !important;
+        }
+
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #212121 inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
     </style>
 </head>
 
@@ -92,37 +106,40 @@
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                        </svg></x-slot>
+                        </svg>
+                    </x-slot>
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('transactions.index')" :active="request()->routeIs('transactions.index')" label="Transactions">
                     <x-slot name="icon"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg></x-slot>
+                        </svg>
+                    </x-slot>
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('categories.index')" :active="request()->routeIs('categories.index')" label="Categories">
                     <x-slot name="icon"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg></x-slot>
+                        </svg>
+                    </x-slot>
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('budgets.index')" :active="request()->routeIs('budgets.index')" label="Budgets">
                     <x-slot name="icon"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
-                        </svg></x-slot>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                    </x-slot>
                 </x-sidebar-link>
                 <x-sidebar-link :href="route('profile')" :active="request()->routeIs('profile')" label="Profile">
                     <x-slot name="icon"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                        </svg></x-slot>
+                        </svg>
+                    </x-slot>
                 </x-sidebar-link>
             </nav>
 
@@ -140,10 +157,13 @@
                     <span class="font-medium whitespace-nowrap transition-all duration-300 origin-left overflow-hidden"
                         x-show="sidebarOpen" x-transition:enter="transition ease-out duration-200"
                         x-transition:enter-start="opacity-0 translate-x-2"
-                        x-transition:enter-end="opacity-100 translate-x-0">Logout Account</span>
+                        x-transition:enter-end="opacity-100 translate-x-0">
+                        Logout Account
+                    </span>
                     <div x-show="!sidebarOpen"
                         class="absolute left-14 bg-red-900/90 text-white text-xs px-3 py-1.5 rounded-md shadow-xl opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 z-50 pointer-events-none whitespace-nowrap border border-red-500/20">
-                        Logout</div>
+                        Logout
+                    </div>
                 </button>
             </div>
         </aside>
@@ -160,7 +180,10 @@
             </header>
 
             <main class="flex-1 overflow-y-auto p-8 relative scroll-smooth">
-                @if (!request()->routeIs('transactions.index') && !request()->routeIs('categories.index') && !request()->routeIs('budgets.index'))
+                @if (
+                    !request()->routeIs('transactions.index') &&
+                        !request()->routeIs('categories.index') &&
+                        !request()->routeIs('budgets.index'))
                     <div class="flex items-center justify-between mb-8">
                         <div>
                             <h1 class="text-3xl font-bold text-white capitalize tracking-tight">{{ $title ?? 'Page' }}
@@ -204,7 +227,7 @@
                     class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">
                     Cancel
                 </button>
-                
+
                 <form method="POST" action="{{ route('logout') }}" class="flex-1">
                     @csrf
                     <button type="submit"
@@ -216,4 +239,5 @@
         </div>
     </div>
 </body>
+
 </html>
