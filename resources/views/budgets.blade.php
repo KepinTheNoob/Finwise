@@ -1,13 +1,21 @@
 <x-app title="Budgets">
 
-    <div x-data="budgetManager()" class="relative min-h-screen">
+    <script>
+        window.budgetsData = @js($budgets ?? []);
+        window.currencyData = @js($currency ?? 'IDR');
+    </script>
 
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <script src="{{ asset('js/budget.js') }}"></script>
+
+    <div x-data="budgetManager()" class="relative h-full flex flex-col">
+
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 shrink-0">
             <div>
                 <h1 class="text-3xl font-bold text-white">Budgets</h1>
                 <p class="text-gray-400 mt-1">Set spending limits and track your progress</p>
             </div>
-            <button @click="openAddModal()"
+
+            <button @click="openAddModal()" x-show="budgets.length > 0"
                 class="flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white px-5 py-2.5 rounded-lg font-medium transition-all shadow-lg shadow-brand-500/20 active:scale-95">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -16,7 +24,7 @@
             </button>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 shrink-0">
             <div
                 class="bg-dark-surface p-6 rounded-xl border border-dark-border shadow-lg flex items-center justify-between">
                 <div>
@@ -58,8 +66,10 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <template x-for="budget in budgets" :key="budget.id">
+        <div x-show="budgets.length > 0" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-5" x-transition:enter-end="opacity-100 translate-y-0"
+            class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-6 pb-8">
+            <template x-for="budget in paginatedBudgets" :key="budget.id">
                 <div
                     class="bg-dark-surface p-6 rounded-xl border border-dark-border shadow-lg hover:border-brand-500/30 transition-all duration-300">
                     <div class="flex justify-between items-start mb-4">
@@ -77,7 +87,6 @@
                             </div>
                             <p class="text-sm text-gray-400 mt-1" x-text="budget.period + ' Budget'"></p>
                         </div>
-
                         <div class="flex gap-2">
                             <button @click="openEditModal(budget)"
                                 class="p-2 bg-[#18181b] border border-dark-border rounded-lg text-gray-400 hover:text-white hover:border-brand-500 transition-all">
@@ -95,58 +104,136 @@
                             </button>
                         </div>
                     </div>
-
                     <div class="flex justify-between items-end mb-2 text-sm">
-                        <div>
-                            <span class="text-gray-400">Spent:</span>
-                            <span class="text-white font-semibold ml-1" x-text="formatCurrency(budget.spent)"></span>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-gray-400">Limit:</span>
-                            <span class="text-white font-semibold ml-1" x-text="formatCurrency(budget.limit)"></span>
+                        <div><span class="text-gray-400">Spent:</span> <span class="text-white font-semibold ml-1"
+                                x-text="formatCurrency(budget.spent)"></span></div>
+                        <div class="text-right"><span class="text-gray-400">Limit:</span> <span
+                                class="text-white font-semibold ml-1" x-text="formatCurrency(budget.limit)"></span>
                         </div>
                     </div>
-
                     <div class="w-full bg-[#18181b] rounded-full h-3 overflow-hidden relative">
                         <div class="h-3 rounded-full transition-all duration-1000 ease-out relative"
                             :class="Number(budget.spent) > Number(budget.limit) ? 'bg-red-500' : 'bg-brand-500'"
-                            :style="`width: ${calculatePercentage(budget.spent, budget.limit)}%`">
-                        </div>
+                            :style="`width: ${calculatePercentage(budget.spent, budget.limit)}%`"></div>
                     </div>
-
                     <div class="flex justify-between items-center mt-2 text-xs">
                         <span class="font-bold"
                             :class="Number(budget.spent) > Number(budget.limit) ? 'text-red-500' : 'text-brand-500'"
-                            x-text="calculatePercentage(budget.spent, budget.limit) + '%'">
-                        </span>
-
+                            x-text="calculatePercentage(budget.spent, budget.limit) + '%'"></span>
                         <span class="text-gray-500">
-                            <template x-if="Number(budget.spent) <= Number(budget.limit)">
-                                <span x-text="formatCurrency(budget.limit - budget.spent)"></span> remaining
-                            </template>
-                            <template x-if="Number(budget.spent) > Number(budget.limit)">
-                                <span class="text-red-400">
-                                    <span x-text="formatCurrency(budget.spent - budget.limit)"></span> excess
-                                </span>
-                            </template>
+                            <template x-if="Number(budget.spent) <= Number(budget.limit)"><span><span
+                                        x-text="formatCurrency(budget.limit - budget.spent)"></span>
+                                    remaining</span></template>
+                            <template x-if="Number(budget.spent) > Number(budget.limit)"><span
+                                    class="text-red-400"><span
+                                        x-text="formatCurrency(budget.spent - budget.limit)"></span>
+                                    excess</span></template>
                         </span>
                     </div>
                 </div>
             </template>
+        </div>
 
-            <div x-show="budgets.length === 0" class="col-span-full p-10 text-center text-gray-500">
-                <p>No budgets set yet. Click "Add Budget" to get started.</p>
+        <div x-show="budgets.length === 0" x-transition:enter="transition ease-out duration-500"
+            x-transition:enter-start="opacity-0 translate-y-10" x-transition:enter-end="opacity-100 translate-y-0"
+            class="flex-1 flex flex-col items-center justify-center text-center -mt-10">
+            <div class="relative mb-6 group cursor-pointer" @click="openAddModal()">
+                <div
+                    class="absolute inset-0 bg-brand-500/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                </div>
+                <div
+                    class="relative w-24 h-24 bg-[#18181b] border-2 border-dashed border-[#333] rounded-full flex items-center justify-center group-hover:border-brand-500/50 transition-colors duration-300">
+                    <svg class="w-10 h-10 text-gray-600 group-hover:text-brand-500 transition-colors duration-300"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <div
+                        class="absolute -bottom-1 -right-1 w-8 h-8 bg-brand-500 rounded-full flex items-center justify-center border-4 border-[#202022]">
+                        <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4v16m8-8H4" />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="text-xl font-bold text-white mb-2">No Budgets Set</h3>
+            <p class="text-gray-400 text-sm max-w-sm mb-8 leading-relaxed">
+                Take control of your finances by setting spending limits for different categories.
+            </p>
+
+        </div>
+
+        <div x-show="totalPages > 1"
+            class="fixed bottom-6 right-6 z-40 bg-dark-surface border border-dark-border rounded-xl px-5 py-3 shadow-2xl flex items-center gap-4">
+
+            <p class="text-sm text-gray-400 whitespace-nowrap">
+                Page
+                <span class="text-white font-semibold" x-text="currentPage"></span>
+                of
+                <span class="text-white font-semibold" x-text="totalPages"></span>
+            </p>
+
+            <div class="flex items-center gap-1">
+
+                <button @click="prevPage()" :disabled="currentPage === 1"
+                    class="px-2 py-1 rounded-md text-gray-400 hover:text-white disabled:opacity-30">
+                    ‹
+                </button>
+
+                <template x-for="page in [1, 2]" :key="'start-' + page">
+                    <button x-show="page <= totalPages" @click="goToPage(page)"
+                        class="w-8 h-8 rounded-md text-sm font-medium"
+                        :class="page === currentPage ?
+                            'bg-brand-500 text-white' :
+                            'text-gray-400 hover:text-white hover:bg-white/10'">
+                        <span x-text="page"></span>
+                    </button>
+                </template>
+
+                <button x-show="totalPages > 4" @click="jumpOpen = true" class="px-2 text-gray-400 hover:text-white">
+                    ...
+                </button>
+
+                <template x-for="page in [totalPages - 1, totalPages]" :key="'end-' + page">
+                    <button x-show="page > 2" @click="goToPage(page)" class="w-8 h-8 rounded-md text-sm font-medium"
+                        :class="page === currentPage ?
+                            'bg-brand-500 text-white' :
+                            'text-gray-400 hover:text-white hover:bg-white/10'">
+                        <span x-text="page"></span>
+                    </button>
+                </template>
+
+                <button @click="nextPage()" :disabled="currentPage === totalPages"
+                    class="px-2 py-1 rounded-md text-gray-400 hover:text-white disabled:opacity-30">
+                    ›
+                </button>
+            </div>
+
+            <div x-show="jumpOpen" @click.outside="jumpOpen = false"
+                class="absolute bottom-14 right-0 bg-dark-bg border border-dark-border rounded-lg p-3 shadow-xl w-40">
+
+                <p class="text-xs text-gray-400 mb-2">Jump to page</p>
+
+                <input type="number" min="1" :max="totalPages" x-model.number="jumpPage"
+                    @keydown.enter="goToPage(jumpPage); jumpOpen=false"
+                    class="w-full bg-[#18181b] border border-[#333] text-white rounded-md px-3 py-2 text-sm">
+
+                <button @click="goToPage(jumpPage); jumpOpen=false"
+                    class="w-full mt-2 bg-brand-500 hover:bg-brand-600 text-white text-sm py-1.5 rounded-md">
+                    Go
+                </button>
             </div>
         </div>
+
 
         <div x-show="isFormModalOpen" style="display: none;"
             class="fixed inset-0 z-60 flex items-center justify-center px-4"
             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="closeFormModal()"></div>
-
             <div class="bg-[#202022] w-full max-w-md rounded-2xl border border-[#333] shadow-2xl relative z-10 overflow-hidden transform transition-all"
                 x-transition:enter="transition ease-out duration-300"
                 x-transition:enter-start="opacity-0 scale-95 translate-y-5"
@@ -154,13 +241,11 @@
                 x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="opacity-100 scale-100 translate-y-0"
                 x-transition:leave-end="opacity-0 scale-95 translate-y-5">
-
                 <div class="p-6 border-b border-[#333]">
                     <h3 class="text-xl font-bold text-white" x-text="isEditing ? 'Edit Budget' : 'Add New Budget'">
                     </h3>
                     <p class="text-sm text-gray-400 mt-1">Set a spending limit for a category</p>
                 </div>
-
                 <div class="p-6 space-y-5">
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Category</label>
@@ -172,13 +257,11 @@
                             @endforeach
                         </select>
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Budget Limit (IDR)</label>
                         <input type="number" x-model="form.amount" placeholder="0"
                             class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all placeholder-gray-600">
                     </div>
-
                     <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Period</label>
                         <select x-model="form.period"
@@ -189,16 +272,12 @@
                         </select>
                     </div>
                 </div>
-
                 <div class="p-6 pt-0">
                     <button @click="saveBudget()"
                         class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-brand-500/25"
-                        x-text="isEditing ? 'Update Budget' : 'Save Budget'">
-                    </button>
+                        x-text="isEditing ? 'Update Budget' : 'Save Budget'"></button>
                     <button @click="closeFormModal()"
-                        class="w-full text-gray-500 hover:text-white mt-4 text-sm font-medium transition-colors">
-                        Cancel
-                    </button>
+                        class="w-full text-gray-500 hover:text-white mt-4 text-sm font-medium transition-colors">Cancel</button>
                 </div>
             </div>
         </div>
@@ -208,7 +287,6 @@
             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
             x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
-
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isDeleteModalOpen = false"></div>
             <div
                 class="bg-[#202022] w-full max-w-sm rounded-2xl border border-[#333] shadow-2xl relative z-10 p-6 text-center transform transition-all">
@@ -231,137 +309,4 @@
         </div>
 
     </div>
-
-    <script>
-        function budgetManager() {
-            return {
-                currency: @js($currency),
-                isFormModalOpen: false,
-                isDeleteModalOpen: false,
-                isEditing: false,
-                deleteId: null,
-
-                budgets: @js($budgets),
-
-                form: {
-                    id: null,
-                    category_id: '',
-                    amount: '',
-                    period: 'Monthly'
-                },
-
-                get totalLimit() {
-                    return this.budgets.reduce((sum, item) => sum + Number(item.limit), 0);
-                },
-                get totalSpent() {
-                    return this.budgets.reduce((sum, item) => sum + Number(item.spent), 0);
-                },
-
-                openAddModal() {
-                    this.isEditing = false;
-                    this.form = {
-                        id: null,
-                        category_id: '',
-                        amount: '',
-                        period: 'Monthly'
-                    };
-                    this.isFormModalOpen = true;
-                },
-
-                openEditModal(budget) {
-                    this.isEditing = true;
-                    this.form = {
-                        id: budget.id,
-                        category_id: budget.category_id,
-                        amount: budget.limit,
-                        period: budget.period
-                    };
-                    this.isFormModalOpen = true;
-                },
-
-                closeFormModal() {
-                    this.isFormModalOpen = false;
-                },
-
-                async saveBudget() {
-                    try {
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                        const url = this.isEditing ? `/budgets/${this.form.id}` : '/budgets';
-                        const method = this.isEditing ? 'PUT' : 'POST';
-
-                        const response = await fetch(url, {
-                            method: method,
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify(this.form)
-                        });
-
-                        if (response.ok) {
-                            window.location.reload();
-                        } else {
-                            const data = await response.json();
-                            alert(data.message || 'Error saving budget');
-                        }
-                    } catch (e) {
-                        console.error(e);
-                        alert('Network error');
-                    }
-                },
-
-                confirmDelete(id) {
-                    this.deleteId = id;
-                    this.isDeleteModalOpen = true;
-                },
-
-                async deleteBudget() {
-                    try {
-                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                        const response = await fetch(`/budgets/${this.deleteId}`, {
-                            method: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': csrfToken,
-                                'Accept': 'application/json'
-                            }
-                        });
-
-                        if (response.ok) {
-                            this.budgets = this.budgets.filter(b => b.id !== this.deleteId);
-                            this.isDeleteModalOpen = false;
-                            this.deleteId = null;
-                        }
-                    } catch (e) {
-                        console.error(e);
-                    }
-                },
-
-                formatCurrency(value) {
-                    const localeMap = {
-                        IDR: 'id-ID',
-                        USD: 'en-US',
-                        EUR: 'de-DE',
-                        JPY: 'ja-JP',
-                    };
-
-                    return new Intl.NumberFormat(
-                        localeMap[this.currency] || 'en-US', {
-                            style: 'currency',
-                            currency: this.currency,
-                            minimumFractionDigits: this.currency === 'JPY' ? 0 : 2,
-                        }
-                    ).format(value);
-                },
-
-
-                calculatePercentage(spent, limit) {
-                    if (Number(limit) === 0) return 0;
-                    let percent = (Number(spent) / Number(limit)) * 100;
-                    return Math.min(percent, 100).toFixed(1);
-                }
-            }
-        }
-    </script>
 </x-app>
