@@ -14,11 +14,35 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        $user = \App\Models\User::factory()->create([
+            'name' => 'Kevin Test',
+            'email' => 'kevin@example.com',
+            'password' => bcrypt('password'),
+        ]);
 
-        // \App\Models\User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
+        $incomeCats = \App\Models\Category::factory(5)->create([
+            'user_id' => $user->id,
+            'type' => 'income'
+        ]);
+
+        $expenseCats = \App\Models\Category::factory(5)->create([
+            'user_id' => $user->id,
+            'type' => 'expense'
+        ]);
+
+        foreach ($incomeCats->merge($expenseCats) as $cat) {
+            \App\Models\Transaction::factory(5)->create([
+                'user_id' => $user->id,
+                'category_id' => $cat->id,
+                'type' => $cat->type
+            ]);
+        }
+
+        foreach ($expenseCats as $cat) {
+            \App\Models\Budget::factory()->create([
+                'user_id' => $user->id,
+                'category_id' => $cat->id,
+            ]);
+        }
     }
 }

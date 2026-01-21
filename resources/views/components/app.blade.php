@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="id" class="dark">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $title ?? 'Finwise' }} - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
@@ -94,21 +94,21 @@
                                 d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                         </svg></x-slot>
                 </x-sidebar-link>
-                <x-sidebar-link :href="route('transactions')" :active="request()->routeIs('transactions')" label="Transactions">
+                <x-sidebar-link :href="route('transactions.index')" :active="request()->routeIs('transactions.index')" label="Transactions">
                     <x-slot name="icon"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg></x-slot>
                 </x-sidebar-link>
-                <x-sidebar-link :href="route('categories')" :active="request()->routeIs('categories')" label="Categories">
+                <x-sidebar-link :href="route('categories.index')" :active="request()->routeIs('categories.index')" label="Categories">
                     <x-slot name="icon"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                         </svg></x-slot>
                 </x-sidebar-link>
-                <x-sidebar-link :href="route('budgets')" :active="request()->routeIs('budgets')" label="Budgets">
+                <x-sidebar-link :href="route('budgets.index')" :active="request()->routeIs('budgets.index')" label="Budgets">
                     <x-slot name="icon"><svg class="w-5 h-5" fill="none" viewBox="0 0 24 24"
                             stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -127,7 +127,7 @@
             </nav>
 
             <div class="p-4 border-t border-dark-border mt-auto shrink-0">
-                <button @click="isLogoutModalOpen = true"
+                <button type="button" @click="isLogoutModalOpen = true"
                     class="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all duration-200 group relative hover:bg-red-500/10 text-gray-400 hover:text-red-500">
                     <div class="shrink-0 w-6 h-6 flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg"
@@ -152,48 +152,20 @@
             <header
                 class="bg-dark-bg/80 backdrop-blur-md border-b border-dark-border h-20 flex items-center justify-between px-8 sticky top-0 z-30">
                 <div class="flex items-center gap-4">
-                    <img src="https://ui-avatars.com/api/?name=User&background=10B981&color=fff"
-                        class="w-10 h-10 rounded-full border border-dark-border">
                     <div class="flex flex-col">
                         <p class="text-xs text-dark-text font-medium uppercase tracking-wider">Welcome back!</p>
-                        <h2 class="text-lg font-bold text-white leading-tight">John Doe</h2>
+                        <h2 class="text-lg font-bold text-white leading-tight">{{ Auth::user()->name }}</h2>
                     </div>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div
-                        class="hidden md:flex items-center bg-dark-surface border border-dark-border rounded-full px-4 py-1.5">
-                        <svg class="w-4 h-4 text-gray-500 mr-2" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <input type="text" placeholder="Search..."
-                            class="bg-transparent border-none focus:ring-0 text-sm text-white placeholder-gray-500 w-32 focus:w-48 transition-all">
-                    </div>
-                    <div class="h-6 w-px bg-dark-border mx-2"></div>
-                    <button
-                        class="p-2 text-gray-400 hover:text-white hover:bg-white/5 rounded-full transition-colors relative">
-                        <span
-                            class="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border border-dark-bg animate-pulse"></span>
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                        </svg>
-                    </button>
                 </div>
             </header>
 
             <main class="flex-1 overflow-y-auto p-8 relative scroll-smooth">
-                @if (!request()->routeIs('transactions') && !request()->routeIs('categories') && !request()->routeIs('budgets'))
+                @if (!request()->routeIs('transactions.index') && !request()->routeIs('categories.index') && !request()->routeIs('budgets.index'))
                     <div class="flex items-center justify-between mb-8">
                         <div>
                             <h1 class="text-3xl font-bold text-white capitalize tracking-tight">{{ $title ?? 'Page' }}
                             </h1>
                             <p class="text-dark-text text-sm mt-1">Manage and track your activities</p>
-                        </div>
-                        <div
-                            class="hidden md:block text-sm text-dark-text bg-dark-surface px-4 py-2 rounded-lg border border-dark-border">
-                            <span class="text-brand-500 font-medium">Today:</span> {{ date('d M Y') }}
                         </div>
                     </div>
                 @endif
@@ -232,15 +204,16 @@
                     class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">
                     Cancel
                 </button>
-
-                <a href="{{ route('login') }}"
-                    class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-red-500/20 flex items-center justify-center">
-                    Logout
-                </a>
+                
+                <form method="POST" action="{{ route('logout') }}" class="flex-1">
+                    @csrf
+                    <button type="submit"
+                        class="w-full bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-red-500/20 flex items-center justify-center">
+                        Logout
+                    </button>
+                </form>
             </div>
         </div>
     </div>
-
 </body>
-
 </html>

@@ -1,5 +1,4 @@
 <x-app>
-
     <div x-data="transactionManager()" class="relative">
 
         <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -65,10 +64,8 @@
                         </button>
                     </div>
                 </div>
-                
+
             </div>
-
-
         </div>
 
         <div class="bg-dark-surface rounded-xl border border-dark-border overflow-hidden min-h-[400px]">
@@ -147,74 +144,66 @@
 
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="closeFormModal()"></div>
 
-            <div class="bg-[#202022] w-full max-w-lg rounded-2xl border border-[#333] shadow-2xl relative z-10 overflow-hidden transform transition-all"
-                x-transition:enter="transition ease-out duration-300"
-                x-transition:enter-start="opacity-0 scale-95 translate-y-5"
-                x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-                x-transition:leave="transition ease-in duration-200"
-                x-transition:leave-start="opacity-100 scale-100 translate-y-0"
-                x-transition:leave-end="opacity-0 scale-95 translate-y-5">
+            <div class="absolute inset-0 bg-black/70" @click="closeFormModal()"></div>
 
-                <div class="p-6 border-b border-[#333]">
-                    <h3 class="text-xl font-bold text-white"
-                        x-text="isEditing ? 'Edit Transaction' : 'Add New Transaction'"></h3>
-                    <p class="text-sm text-gray-400 mt-1"
-                        x-text="isEditing ? 'Update your transaction details' : 'Add a new income or expense transaction'">
-                    </p>
-                </div>
+            <div class="bg-[#202022] w-full max-w-lg rounded-2xl p-6 z-10" @click.outside="closeFormModal()">
 
-                <div class="p-6 space-y-5">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Description</label>
-                        <input type="text" x-model="form.desc" placeholder="e.g., Salary, Groceries"
-                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                <h3 class="text-xl font-bold text-white mb-4"
+                    x-text="isEditing ? 'Edit Transaction' : 'Add Transaction'"></h3>
+
+                <form method="POST" :action="isEditing ? '/transactions/' + form.id : '/transactions'">
+                    @csrf
+
+                    <input type="hidden" name="_method" value="PUT" :disabled="!isEditing">
+
+                    <div class="mb-4">
+                        <label class="text-gray-400 text-sm">Description</label>
+                        <input name="description" x-model="form.description" required
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Amount (IDR)</label>
-                        <input type="number" x-model="form.amount" placeholder="0"
-                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all placeholder-gray-600">
+                    <div class="mb-4">
+                        <label class="text-gray-400 text-sm">Amount</label>
+                        <input name="amount" type="number" x-model="form.amount" required
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Type</label>
-                        <select x-model="form.type"
-                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all appearance-none cursor-pointer">
-                            <option value="Expense">Expense</option>
-                            <option value="Income">Income</option>
+                    <div class="mb-4">
+                        <label class="text-gray-400 text-sm">Type</label>
+                        <select name="type" x-model="form.type"
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5">
+                            <option value="income">Income</option>
+                            <option value="expense">Expense</option>
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Category</label>
-                        <select x-model="form.category"
-                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all appearance-none cursor-pointer">
-                            <option value="Food">Food</option>
-                            <option value="Transport">Transport</option>
-                            <option value="Salary">Salary</option>
-                            <option value="Entertainment">Entertainment</option>
-                            <option value="Shopping">Shopping</option>
-                            <option value="Freelance">Freelance</option>
+                    <div class="mb-4">
+                        <label class="text-gray-400 text-sm">Category</label>
+                        <select name="category_id" x-model="form.category_id"
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5">
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
                         </select>
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-400 mb-2">Date</label>
-                        <input type="date" x-model="form.date"
-                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-500 transition-all scheme:dark">
+                    <div class="mb-6">
+                        <label class="text-gray-400 text-sm">Date</label>
+                        <input name="transaction_date" type="date" x-model="form.transaction_date" required
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-2.5">
                     </div>
-                </div>
 
-                <div class="p-6 pt-0">
-                    <button @click="saveTransaction()"
-                        class="w-full bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-lg transition-all transform active:scale-[0.98] shadow-lg shadow-brand-500/25"
-                        x-text="isEditing ? 'Update Transaction' : 'Add Transaction'">
-                    </button>
-                    <button @click="closeFormModal()"
-                        class="w-full text-gray-500 hover:text-white mt-4 text-sm font-medium transition-colors">
-                        Cancel
-                    </button>
-                </div>
+                    <div class="flex gap-3">
+                        <button type="button" @click="closeFormModal()"
+                            class="flex-1 bg-gray-700 text-white py-2 rounded-lg hover:bg-gray-600 transition-colors">
+                            Cancel
+                        </button>
+                        <button type="submit"
+                            class="flex-1 bg-brand-500 text-white py-2 rounded-lg font-bold hover:bg-brand-600 transition-colors"
+                            x-text="isEditing ? 'Update' : 'Save'">
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 
@@ -261,62 +250,44 @@
     <script>
         function transactionManager() {
             return {
+                currency: @js(auth()->user()->currency ?? 'IDR'),
+
+                currencyLocales: {
+                    IDR: 'id-ID',
+                    USD: 'en-US',
+                    EUR: 'de-DE',
+                    GBP: 'en-GB',
+                    JPY: 'ja-JP'
+                },
+
+                isFormModalOpen: false,
                 search: '',
                 filterType: 'all',
-                isFormModalOpen: false,
                 isDeleteModalOpen: false,
                 isEditing: false,
                 deleteId: null,
 
-                transactions: [{
-                        id: 1,
-                        desc: 'Monthly Salary',
-                        amount: 15000000,
-                        type: 'Income',
-                        category: 'Salary',
-                        date: '2024-04-01'
-                    },
-                    {
-                        id: 2,
-                        desc: 'Weekly Groceries',
-                        amount: 1200000,
-                        type: 'Expense',
-                        category: 'Food',
-                        date: '2024-04-02'
-                    },
-                    {
-                        id: 3,
-                        desc: 'Freelance Project',
-                        amount: 3500000,
-                        type: 'Income',
-                        category: 'Freelance',
-                        date: '2024-04-05'
-                    },
-                    {
-                        id: 4,
-                        desc: 'Gas Station',
-                        amount: 350000,
-                        type: 'Expense',
-                        category: 'Transport',
-                        date: '2024-04-06'
-                    },
-                    {
-                        id: 5,
-                        desc: 'Cinema Date',
-                        amount: 250000,
-                        type: 'Expense',
-                        category: 'Entertainment',
-                        date: '2024-04-07'
-                    },
-                ],
+                transactions: @js(
+    $transactions->map(
+        fn($t) => [
+            'id' => $t->id,
+            'desc' => $t->description,
+            'amount' => $t->amount,
+            'type' => ucfirst($t->type),
+            'category' => $t->category->name ?? 'Uncategorized',
+            'category_id' => $t->category_id,
+            'date' => $t->transaction_date?->format('Y-m-d'),
+        ],
+    ),
+),
 
                 form: {
                     id: null,
-                    desc: '',
+                    description: '',
                     amount: '',
-                    type: 'Expense',
-                    category: 'Food',
-                    date: ''
+                    type: 'expense',
+                    category_id: '',
+                    transaction_date: ''
                 },
 
                 get filteredTransactions() {
@@ -331,11 +302,11 @@
                     this.isEditing = false;
                     this.form = {
                         id: null,
-                        desc: '',
+                        description: '',
                         amount: '',
-                        type: 'Expense',
-                        category: 'Food',
-                        date: new Date().toISOString().split('T')[0]
+                        type: 'expense',
+                        category_id: '{{ $categories->first()->id ?? '' }}',
+                        transaction_date: new Date().toISOString().split('T')[0]
                     };
                     this.isFormModalOpen = true;
                 },
@@ -343,7 +314,12 @@
                 openEditModal(trx) {
                     this.isEditing = true;
                     this.form = {
-                        ...trx
+                        id: trx.id,
+                        description: trx.desc,
+                        amount: trx.amount,
+                        type: trx.type.toLowerCase(),
+                        category_id: trx.category_id,
+                        transaction_date: trx.date
                     };
                     this.isFormModalOpen = true;
                 },
@@ -352,50 +328,48 @@
                     this.isFormModalOpen = false;
                 },
 
-                saveTransaction() {
-                    if (this.isEditing) {
-                        const index = this.transactions.findIndex(t => t.id === this.form.id);
-                        if (index !== -1) {
-                            this.transactions[index] = {
-                                ...this.form
-                            };
-                        }
-                    } else {
-                        const newId = this.transactions.length > 0 ? Math.max(...this.transactions.map(t => t.id)) + 1 : 1;
-                        this.transactions.unshift({
-                            ...this.form,
-                            id: newId
-                        });
-                    }
-                    this.closeFormModal();
-                },
-
                 confirmDelete(id) {
                     this.deleteId = id;
                     this.isDeleteModalOpen = true;
                 },
 
-                deleteTransaction() {
-                    this.transactions = this.transactions.filter(t => t.id !== this.deleteId);
-                    this.isDeleteModalOpen = false;
-                    this.deleteId = null;
+                async deleteTransaction() {
+                    const csrfToken = document
+                        .querySelector('meta[name="csrf-token"]')
+                        .getAttribute('content');
+
+                    const response = await fetch(`/transactions/${this.deleteId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        this.transactions = this.transactions.filter(t => t.id !== this.deleteId);
+                        this.isDeleteModalOpen = false;
+                    } else {
+                        alert('Failed to delete transaction');
+                    }
                 },
 
                 formatCurrency(value) {
-                    return new Intl.NumberFormat('id-ID', {
+                    const locale = this.currencyLocales[this.currency] || 'en-US';
+
+                    return new Intl.NumberFormat(locale, {
                         style: 'currency',
-                        currency: 'IDR',
+                        currency: this.currency,
                         minimumFractionDigits: 0
                     }).format(value);
                 },
 
                 formatDate(dateString) {
-                    const options = {
+                    return new Date(dateString).toLocaleDateString('en-US', {
                         year: 'numeric',
                         month: 'short',
                         day: 'numeric'
-                    };
-                    return new Date(dateString).toLocaleDateString('en-US', options);
+                    });
                 }
             }
         }

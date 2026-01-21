@@ -17,21 +17,20 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
             <template x-for="cat in categories" :key="cat.id">
-                <div
-                    class="bg-dark-surface rounded-xl border border-dark-border overflow-hidden group hover:border-brand-500/30 transition-all duration-300">
+                <div class="bg-dark-surface rounded-xl border border-dark-border overflow-hidden group hover:border-brand-500/30 transition-all duration-300">
                     <div class="p-6 flex items-center gap-4">
                         <div class="w-14 h-14 rounded-full flex items-center justify-center text-white shadow-lg shrink-0"
-                            :style="`background-color: ${cat.color}20; color: ${cat.color}`"> <svg class="w-7 h-7"
-                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            :style="`background-color: ${cat.color}20; color: ${cat.color}`">
+                            <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                             </svg>
                         </div>
                         <div>
                             <h3 class="text-white font-bold text-lg" x-text="cat.name"></h3>
-                            <p class="text-gray-500 text-sm" x-text="cat.count + ' Transactions'"></p>
+                            <p class="text-gray-500 text-sm" x-text="(cat.transactions_count || 0) + ' Transactions'"></p>
+                            <span class="text-xs px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700 mt-1 inline-block" x-text="cat.type"></span>
                         </div>
                     </div>
 
@@ -55,7 +54,6 @@
                     </div>
                 </div>
             </template>
-
         </div>
 
         <div x-show="isModalOpen" style="display: none;"
@@ -89,10 +87,18 @@
                     </div>
 
                     <div>
+                        <label class="block text-sm font-medium text-gray-400 mb-2">Type</label>
+                        <select x-model="form.type"
+                            class="w-full bg-[#18181b] border border-[#333] text-white rounded-lg px-4 py-3 focus:outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500 transition-all cursor-pointer">
+                            <option value="Expense">Expense</option>
+                            <option value="Income">Income</option>
+                        </select>
+                    </div>
+
+                    <div>
                         <label class="block text-sm font-medium text-gray-400 mb-2">Color</label>
                         <div class="flex gap-3">
-                            <div
-                                class="relative w-14 h-12 rounded-lg border border-[#333] overflow-hidden cursor-pointer">
+                            <div class="relative w-14 h-12 rounded-lg border border-[#333] overflow-hidden cursor-pointer">
                                 <input type="color" x-model="form.color"
                                     class="absolute -top-2 -left-2 w-20 h-20 cursor-pointer p-0 border-0">
                             </div>
@@ -122,33 +128,23 @@
             x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
 
             <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" @click="isDeleteModalOpen = false"></div>
-
             <div class="bg-[#202022] w-full max-w-sm rounded-2xl border border-[#333] shadow-2xl relative z-10 p-6 text-center transform transition-all"
                 x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-90"
                 x-transition:enter-end="opacity-100 scale-100" x-transition:leave="transition ease-in duration-200"
                 x-transition:leave-start="opacity-100 scale-100" x-transition:leave-end="opacity-0 scale-90">
 
-                <div
-                    class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div class="w-16 h-16 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                 </div>
-
                 <h3 class="text-xl font-bold text-white mb-2">Delete Category?</h3>
-                <p class="text-gray-400 text-sm mb-6">Are you sure you want to delete this category? All related
-                    transactions might be affected.</p>
+                <p class="text-gray-400 text-sm mb-6">Are you sure you want to delete this category?</p>
 
                 <div class="flex gap-3">
-                    <button @click="isDeleteModalOpen = false"
-                        class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">
-                        Cancel
-                    </button>
-                    <button @click="deleteCategory()"
-                        class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-red-500/20">
-                        Delete
-                    </button>
+                    <button @click="isDeleteModalOpen = false" class="flex-1 bg-[#333] hover:bg-[#444] text-white py-2.5 rounded-lg font-medium transition-colors">Cancel</button>
+                    <button @click="deleteCategory()" class="flex-1 bg-red-500 hover:bg-red-600 text-white py-2.5 rounded-lg font-medium transition-colors shadow-lg shadow-red-500/20">Delete</button>
                 </div>
             </div>
         </div>
@@ -163,48 +159,13 @@
                 isEditing: false,
                 deleteId: null,
 
-                // Dummy Data Sesuai Gambar
-                categories: [{
-                        id: 1,
-                        name: 'Food',
-                        count: 12,
-                        color: '#10B981'
-                    },
-                    {
-                        id: 2,
-                        name: 'Transportation',
-                        count: 12,
-                        color: '#3B82F6'
-                    },
-                    {
-                        id: 3,
-                        name: 'Housing',
-                        count: 12,
-                        color: '#F59E0B'
-                    },
-                    {
-                        id: 4,
-                        name: 'Utilities',
-                        count: 12,
-                        color: '#EF4444'
-                    },
-                    {
-                        id: 5,
-                        name: 'Entertainment',
-                        count: 12,
-                        color: '#8B5CF6'
-                    },
-                    {
-                        id: 6,
-                        name: 'Salary',
-                        count: 12,
-                        color: '#10B981'
-                    },
-                ],
+                // INJECT DATABASE DATA HERE
+                categories: @json($categories),
 
                 form: {
                     id: null,
                     name: '',
+                    type: 'Expense', // Default Value
                     color: '#10B981'
                 },
 
@@ -213,6 +174,7 @@
                     this.form = {
                         id: null,
                         name: '',
+                        type: 'Expense',
                         color: '#10B981'
                     };
                     this.isModalOpen = true;
@@ -230,23 +192,40 @@
                     this.isModalOpen = false;
                 },
 
-                saveCategory() {
-                    if (this.isEditing) {
-                        const index = this.categories.findIndex(c => c.id === this.form.id);
-                        if (index !== -1) {
-                            this.categories[index] = {
-                                ...this.form
-                            };
-                        }
-                    } else {
-                        const newId = this.categories.length > 0 ? Math.max(...this.categories.map(c => c.id)) + 1 : 1;
-                        this.categories.push({
-                            ...this.form,
-                            id: newId,
-                            count: 0
+                // Example AJAX Implementation for Saving
+                async saveCategory() {
+                    try {
+                        const url = this.isEditing ? `/categories/${this.form.id}` : '/categories';
+                        const method = this.isEditing ? 'PUT' : 'POST';
+                        
+                        // NOTE: Ensure you have CSRF token in your layout head <meta name="csrf-token" ...>
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                        const response = await fetch(url, {
+                            method: method,
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(this.form)
                         });
+
+                        if (!response.ok) throw new Error('Failed to save');
+
+                        const savedCat = await response.json();
+
+                        if (this.isEditing) {
+                            const index = this.categories.findIndex(c => c.id === this.form.id);
+                            this.categories[index] = savedCat;
+                        } else {
+                            this.categories.push(savedCat);
+                        }
+                        this.closeModal();
+                    } catch (error) {
+                        console.error(error);
+                        alert('Error saving category');
                     }
-                    this.closeModal();
                 },
 
                 confirmDelete(id) {
@@ -254,13 +233,27 @@
                     this.isDeleteModalOpen = true;
                 },
 
-                deleteCategory() {
-                    this.categories = this.categories.filter(c => c.id !== this.deleteId);
-                    this.isDeleteModalOpen = false;
-                    this.deleteId = null;
+                async deleteCategory() {
+                    try {
+                        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                        
+                        await fetch(`/categories/${this.deleteId}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': csrfToken,
+                                'Accept': 'application/json'
+                            }
+                        });
+
+                        this.categories = this.categories.filter(c => c.id !== this.deleteId);
+                        this.isDeleteModalOpen = false;
+                        this.deleteId = null;
+                    } catch (error) {
+                        console.error(error);
+                        alert('Error deleting category');
+                    }
                 }
             }
         }
     </script>
-
 </x-app>
